@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SavedNightCard from './SavedNightCard';
 
 const API = 'http://localhost:3001';
 
 export default function SavedNightsPage() {
+  const navigate = useNavigate();
   const [nights, setNights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     fetch(`${API}/saved`)
@@ -28,12 +31,44 @@ export default function SavedNightsPage() {
     }
   };
 
+  // Tabs built from the categories of the saved nights
+  const categories = useMemo(
+    () => ['all', ...new Set(nights.map((n) => n.category).filter(Boolean))],
+    [nights]
+  );
+
+  const visibleNights =
+    filter === 'all' ? nights : nights.filter((n) => n.category === filter);
+
+  // If the active tab's last night was removed, fall back to "all"
+  useEffect(() => {
+    if (filter !== 'all' && !categories.includes(filter)) setFilter('all');
+  }, [categories, filter]);
+
   return (
     <div className="min-h-screen bg-[#0b0c0e] p-6 text-[#f5f6f8]">
       <h1 className="text-3xl font-bold">Your next good nights</h1>
       <p className="mt-1 text-[#8b909a]">
         All the nights you loved. Now make a plan.
       </p>
+
+      {nights.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-2">
+          {categories.map((c) => (
+            <button
+              key={c}
+              onClick={() => setFilter(c)}
+              className={`cursor-pointer rounded-full border px-4 py-2 text-sm capitalize transition ${
+                filter === c
+                  ? 'border-[#d2ff38]/50 bg-[#d2ff38]/10 text-[#d2ff38]'
+                  : 'border-white/10 text-[#8b909a] hover:text-white'
+              }`}
+            >
+              {c === 'all' ? 'All saved' : c}
+            </button>
+          ))}
+        </div>
+      )}
 
       {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
       {loading && <p className="mt-6 text-[#8b909a]">Loading…</p>}
@@ -45,12 +80,12 @@ export default function SavedNightsPage() {
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {nights.map((night) => (
+        {visibleNights.map((night) => (
           <SavedNightCard
             key={night.id}
             night={night}
             onUnsave={handleUnsave}
-            onView={() => {}}
+            onView={(id) => navigate(`/events/${id}`)}
           />
         ))}
       </div>
