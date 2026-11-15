@@ -4,116 +4,86 @@ import Sidebar from './Sidebar';
 
 const PRESET_FLYERS = [
   {
-    label: 'Neon Crowd',
-    url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000&auto=format&fit=crop&q=80'
+    label: 'Detty Dezemba Poster',
+    url: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/DettyDezembaFestPoster'
   },
   {
-    label: 'Club Lasers',
-    url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1000&auto=format&fit=crop&q=80'
+    label: 'AmapianoLand Poster',
+    url: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/amapianoland'
   },
   {
-    label: 'Confetti Night',
-    url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1000&auto=format&fit=crop&q=80'
+    label: 'Rhythm & Identity',
+    url: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/rafiki_alphabet'
   },
   {
-    label: 'Red Booth',
-    url: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1000&auto=format&fit=crop&q=80'
+    label: 'MindTech Poster',
+    url: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/mindtech'
   }
 ];
 
-const NAIROBI_ZONES = [
-  { city: 'Westlands, Nairobi', neighborhood: 'WESTLANDS', lat: -1.2683, lng: 36.8111 },
-  { city: 'Kilimani, Nairobi', neighborhood: 'KILIMANI', lat: -1.2892, lng: 36.7869 },
-  { city: 'Karen, Nairobi', neighborhood: 'KAREN', lat: -1.3199, lng: 36.7085 },
-  { city: 'Lavington, Nairobi', neighborhood: 'LAVINGTON', lat: -1.2756, lng: 36.7665 },
-  { city: 'Kileleshwa, Nairobi', neighborhood: 'KILELESHWA', lat: -1.2814, lng: 36.7828 },
-  { city: 'Ngong Road, Nairobi', neighborhood: 'NGONG RD', lat: -1.3005, lng: 36.7758 }
+const NAIROBI_LOCATIONS = [
+  { address: 'Nairobi, Uhuru Gardens', lat: -1.32, long: 36.8 },
+  { address: 'Kimathi Street, Nairobi', lat: -1.28, long: 36.82 },
+  { address: 'Ngong Racecourse, Nairobi', lat: -1.3, long: 36.74 },
+  { address: 'Argwings Kodhek Rd, Nairobi', lat: -1.29, long: 36.79 },
+  { address: 'Brookside Dr, Nairobi', lat: -1.25, long: 36.79 },
+  { address: 'Laikipia Rd, Nairobi', lat: -1.27, long: 36.79 },
+  { address: 'Jakaya Kikwete Road, Nairobi', lat: -1.29, long: 36.81 },
+  { address: 'Haile Selassie Ave, Nairobi', lat: -1.29, long: 36.82 }
 ];
 
-const VIBE_OPTIONS = [
-  'House',
-  'Rooftop',
-  'Amapiano',
-  'Afrobeats',
-  'Techno',
-  'Warehouse',
-  'Disco',
-  'Hip-Hop',
-  'Lounge'
-];
-
-const formatKsh = (amount) =>
-  Number(amount) === 0 ? 'Free' : `KSh ${Number(amount).toLocaleString()}`;
+const CATEGORIES = ['music', 'charity', 'education', 'tech', 'wellness'];
 
 export default function HostPage() {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
-  const [subtitle, setSubtitle] = useState('');
+  const [category, setCategory] = useState('music');
+  const [description, setDescription] = useState('');
   const [venue, setVenue] = useState('');
-  const [selectedZone, setSelectedZone] = useState(NAIROBI_ZONES[0].city);
-  const [time, setTime] = useState('Tonight, 9 PM – late');
+  const [address, setAddress] = useState(NAIROBI_LOCATIONS[0].address);
+  const [startTime, setStartTime] = useState('19:00');
+  const [endTime, setEndTime] = useState('Till Dawn');
   const [price, setPrice] = useState('1000');
-  const [spotsLeft, setSpotsLeft] = useState('15');
-  const [distanceKm, setDistanceKm] = useState('1.4');
-  const [pickLabel, setPickLabel] = useState('HOST EXCLUSIVE');
-  const [selectedTags, setSelectedTags] = useState(['House', 'Rooftop']);
   const [image, setImage] = useState(PRESET_FLYERS[0].url);
 
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
 
-  const toggleTag = (tag) => {
-    if (selectedTags.includes(tag)) {
-      if (selectedTags.length > 1) {
-        setSelectedTags(selectedTags.filter((t) => t !== tag));
-      }
-    } else if (selectedTags.length < 3) {
-      setSelectedTags([...selectedTags, tag]);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!title.trim() || !venue.trim() || !subtitle.trim()) {
-      setErrorMsg('Please fill in the party title, one-line pitch, and venue name.');
+    if (!title.trim() || !venue.trim() || !description.trim()) {
+      setErrorMsg('Please fill in the event title, venue name, and description.');
       return;
     }
 
-    const numericPrice = Math.max(0, Number(price) || 0);
-    const numericSpots = Math.max(1, Number(spotsLeft) || 10);
-    const numericDist = Math.max(0.2, Number(distanceKm) || 1.5);
-    const zoneObj =
-      NAIROBI_ZONES.find((z) => z.city === selectedZone) || NAIROBI_ZONES[0];
+    const locCoords =
+      NAIROBI_LOCATIONS.find((l) => l.address === address) || NAIROBI_LOCATIONS[0];
+    const normalizedPrice =
+      String(price).trim() === '0' || String(price).trim().toLowerCase() === 'free'
+        ? 'free'
+        : String(Math.max(0, Number(price) || 0));
 
+    // Matches server/db.json event schema 100%
     const newParty = {
-      id: String(Date.now()),
+      id: Date.now(),
       title: title.trim(),
-      subtitle: subtitle.trim(),
-      description: subtitle.trim(),
-      venue: venue.trim(),
-      neighborhood: zoneObj.neighborhood,
-      city: zoneObj.city,
-      distance: `${numericDist.toFixed(1)} km`,
-      distanceKm: Number(numericDist.toFixed(1)),
+      category,
+      description: description.trim(),
+      image: image.trim() || PRESET_FLYERS[0].url,
+      startTime: startTime.trim() || '19:00',
+      endTime: endTime.trim() || 'Till Dawn',
+      price: normalizedPrice,
+      currency: 'KES',
       location: {
         venue: venue.trim(),
-        neighborhood: zoneObj.neighborhood,
-        city: zoneObj.city,
-        distance: `${numericDist.toFixed(1)} km`,
-        distanceKm: Number(numericDist.toFixed(1)),
-        lat: zoneObj.lat,
-        lng: zoneObj.lng
-      },
-      pickLabel,
-      time: time.trim() || 'Tonight, 9 PM – late',
-      price: numericPrice,
-      tags: selectedTags,
-      spotsLeft: numericSpots,
-      image: image.trim() || PRESET_FLYERS[0].url
+        address,
+        lat: locCoords.lat,
+        long: locCoords.long
+      }
     };
 
     setIsSubmitting(true);
@@ -137,25 +107,22 @@ export default function HostPage() {
     }, 700);
   };
 
+  const previewPriceNum = Number(price) || 0;
+
   return (
-    <Sidebar
-      selectedLocation={selectedZone}
-      onSelectLocation={(loc) => {
-        if (loc !== 'All Nairobi Zones') setSelectedZone(loc);
-      }}
-    >
-      {/* HERO HEADER */}
+    <Sidebar>
       <section className="my-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-[26px] sm:text-[30px] font-bold tracking-tight leading-tight">
             Put your night on the map.
           </h1>
           <p className="text-[12px] sm:text-[13px] text-[#8b909a] mt-0.5">
-            Fill in tonight's plot details on the left and watch your live swipe card update on the right.
+            Creates an event matching the exact team db.json schema.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={() => navigate('/')}
           className="self-start sm:self-auto text-xs font-semibold text-[#8b909a] hover:text-white bg-white/[0.04] border border-white/[0.08] px-4 py-2 rounded-full cursor-pointer transition"
         >
@@ -163,7 +130,6 @@ export default function HostPage() {
         </button>
       </section>
 
-      {/* 2-COLUMN FORM + LIVE CARD PREVIEW */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 items-start flex-1">
         <form
           onSubmit={handleSubmit}
@@ -177,33 +143,33 @@ export default function HostPage() {
 
           {publishSuccess && (
             <div className="bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-xs font-bold px-4 py-3 rounded-xl">
-              Party published! Redirecting you to the Discover swipe deck...
+              Event published! Redirecting you to the Discover swipe deck...
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
-                PARTY TITLE *
+                EVENT TITLE *
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Midnight Rooftop Groove"
+                placeholder="e.g. Detty Dezemba"
                 className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
               />
             </div>
 
             <div>
               <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
-                VENUE NAME *
+                VENUE NAME (location.venue) *
               </label>
               <input
                 type="text"
                 value={venue}
                 onChange={(e) => setVenue(e.target.value)}
-                placeholder="e.g. The Alchemist Deck"
+                placeholder="e.g. Uhuru Gardens"
                 className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
               />
             </div>
@@ -211,30 +177,30 @@ export default function HostPage() {
 
           <div>
             <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
-              ONE-LINE VIBE PITCH *
+              DESCRIPTION *
             </label>
             <input
               type="text"
-              value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
-              placeholder="e.g. A rooftop, a sunset, and deep amapiano sets till dawn."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="e.g. Live Afro house artists in Nairobi, with a special guest performance."
               className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
-                NAIROBI ZONE
+                ADDRESS (location.address)
               </label>
               <select
-                value={selectedZone}
-                onChange={(e) => setSelectedZone(e.target.value)}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
                 className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3 py-2.5 text-xs text-white outline-none"
               >
-                {NAIROBI_ZONES.map((z) => (
-                  <option key={z.city} value={z.city}>
-                    {z.city}
+                {NAIROBI_LOCATIONS.map((loc) => (
+                  <option key={loc.address} value={loc.address}>
+                    {loc.address}
                   </option>
                 ))}
               </select>
@@ -242,39 +208,7 @@ export default function HostPage() {
 
             <div>
               <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
-                START TIME
-              </label>
-              <input
-                type="text"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                placeholder="Tonight, 9 PM – late"
-                className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
-                TOP BADGE
-              </label>
-              <select
-                value={pickLabel}
-                onChange={(e) => setPickLabel(e.target.value)}
-                className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3 py-2.5 text-xs text-white outline-none"
-              >
-                <option value="HOST EXCLUSIVE">HOST EXCLUSIVE</option>
-                <option value="TONIGHT'S PICK">TONIGHT'S PICK</option>
-                <option value="SECRET PIN">SECRET PIN</option>
-                <option value="FILLING FAST">FILLING FAST</option>
-                <option value="VIP CURATED">VIP CURATED</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <div>
-              <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
-                COVER CHARGE (KSh)
+                PRICE (KES — enter 0 for "free")
               </label>
               <input
                 type="number"
@@ -282,35 +216,35 @@ export default function HostPage() {
                 step="100"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="0 for Free"
+                placeholder="0 for free"
+                className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
+                START TIME (startTime)
+              </label>
+              <input
+                type="text"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                placeholder="19:00"
                 className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
               />
             </div>
 
             <div>
               <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
-                SPOTS LEFT
+                END TIME (endTime)
               </label>
               <input
-                type="number"
-                min="1"
-                max="500"
-                value={spotsLeft}
-                onChange={(e) => setSpotsLeft(e.target.value)}
-                className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
-                DISTANCE (KM)
-              </label>
-              <input
-                type="number"
-                min="0.2"
-                step="0.2"
-                value={distanceKm}
-                onChange={(e) => setDistanceKm(e.target.value)}
+                type="text"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                placeholder="Till Dawn"
                 className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
               />
             </div>
@@ -318,32 +252,29 @@ export default function HostPage() {
 
           <div>
             <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-2">
-              SELECT UP TO 3 VIBE TAGS
+              CATEGORY
             </label>
             <div className="flex flex-wrap gap-2">
-              {VIBE_OPTIONS.map((tag) => {
-                const active = selectedTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => toggleTag(tag)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition cursor-pointer ${
-                      active
-                        ? 'bg-[#1e2418] text-[#d2ff38] border-[#d2ff38]/50 font-semibold'
-                        : 'bg-[#0e1013] text-[#8b909a] border-white/[0.08] hover:text-white'
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition cursor-pointer capitalize ${
+                    category === cat
+                      ? 'bg-[#1e2418] text-[#d2ff38] border-[#d2ff38]/50 font-semibold'
+                      : 'bg-[#0e1013] text-[#8b909a] border-white/[0.08] hover:text-white'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
           </div>
 
           <div>
             <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-2">
-              FLYER BACKGROUND IMAGE
+              POSTER IMAGE URL
             </label>
             <div className="flex flex-wrap gap-2 mb-2.5">
               {PRESET_FLYERS.map((preset) => (
@@ -365,7 +296,7 @@ export default function HostPage() {
               type="url"
               value={image}
               onChange={(e) => setImage(e.target.value)}
-              placeholder="Or paste custom image URL (https://...)"
+              placeholder="Paste Cloudinary or image URL (https://...)"
               className="w-full bg-[#0e1013] border border-white/[0.1] focus:border-[#d2ff38] rounded-xl px-3.5 py-2 text-xs text-white outline-none"
             />
           </div>
@@ -383,7 +314,7 @@ export default function HostPage() {
         <div className="w-full max-w-[440px] mx-auto lg:max-w-none">
           <div className="flex justify-between text-[10px] tracking-[1.2px] text-[#8b909a] mb-2">
             <span>LIVE SWIPE CARD PREVIEW</span>
-            <span className="text-[#d2ff38]">REAL-TIME</span>
+            <span className="text-[#d2ff38]">DB.JSON SCHEMA</span>
           </div>
 
           <div
@@ -395,42 +326,41 @@ export default function HostPage() {
             className="w-full h-[420px] rounded-[22px] bg-cover bg-center p-5 sm:p-6 flex flex-col justify-between border border-white/[0.14] shadow-[0_18px_40px_rgba(0,0,0,0.65)]"
           >
             <div className="flex items-center justify-between">
-              <span className="bg-[#d2ff38] text-[#0b0c0e] text-[10px] font-extrabold px-3 py-1 rounded-full">
-                {pickLabel}
+              <span className="bg-[#d2ff38] text-[#0b0c0e] text-[10px] font-extrabold px-3 py-1 rounded-full uppercase">
+                TONIGHT'S {category}
               </span>
               <span className="bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1 rounded-full border border-white/15">
-                {Number(price) === 0 ? 'Free' : `${formatKsh(price)} cover`}
+                {previewPriceNum === 0
+                  ? 'Free Entry'
+                  : `KES ${previewPriceNum.toLocaleString()} cover`}
               </span>
             </div>
 
             <div>
               <div className="flex flex-wrap gap-1.5 mb-2.5">
-                {selectedTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-white/15 backdrop-blur-md text-white text-[11px] px-2.5 py-0.5 rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
-                <span className="bg-[#d2ff38]/20 text-[#d2ff38] border border-[#d2ff38]/35 text-[11px] px-2.5 py-0.5 rounded-full font-semibold">
-                  {spotsLeft || 15} spots left
+                <span className="bg-white/15 backdrop-blur-md text-white text-[11px] px-2.5 py-0.5 rounded-full capitalize">
+                  {category}
+                </span>
+                <span className="bg-white/15 backdrop-blur-md text-white text-[11px] px-2.5 py-0.5 rounded-full">
+                  {address}
                 </span>
               </div>
 
               <h2 className="text-[26px] sm:text-[30px] font-extrabold tracking-tight leading-tight mb-1">
-                {title.trim() || 'Your Party Title.'}
+                {title.trim() || 'Your Event Title'}
               </h2>
-              <p className="text-[12px] sm:text-[13px] text-gray-300 mb-3.5">
-                {subtitle.trim() || 'Your one-line pitch appears right here.'}
+              <p className="text-[12px] sm:text-[13px] text-gray-300 mb-3.5 line-clamp-2">
+                {description.trim() || 'Your event description appears right here.'}
               </p>
 
               <div className="flex items-end justify-between">
                 <div className="flex flex-col gap-0.5 text-[12px] text-gray-300">
                   <span>
-                    {venue.trim() || 'Venue Name'} • {Number(distanceKm || 1.4).toFixed(1)} km
+                    {venue.trim() || 'Venue Name'} • {address}
                   </span>
-                  <span>{time || 'Tonight, 9 PM – late'}</span>
+                  <span>
+                    {startTime || '19:00'} – {endTime || 'Till Dawn'}
+                  </span>
                 </div>
 
                 <span className="w-9 h-9 rounded-full bg-white/15 border border-white/20 text-white text-sm flex items-center justify-center">
