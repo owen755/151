@@ -1,11 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import FilterChip from './components/FilterChip'
 import NightCard from './components/NightCard'
-import { sampleEvents } from './sampleEvents'
+import { API_URL } from './api'
 
 export default function ExploreMap() {
   const [search, setSearch] = useState('')
-  const [selectedId, setSelectedId] = useState(sampleEvents[0].id)
+  const [events, setEvents] = useState([])
+  const [selectedId, setSelectedId] = useState(null)
+
+  // Until the user clicks a card, the first event is the selected one
+  const activeId = selectedId ?? events[0]?.id
+
+  useEffect(() => {
+    fetch(`${API_URL}/events`)
+      .then((res) => res.json())
+      .then((data) => setEvents(data))
+  }, [])
 
   return (
     <div className="min-h-screen px-11 py-10">
@@ -38,18 +48,18 @@ export default function ExploreMap() {
       <div className="mt-8 grid grid-cols-[345px_1fr] gap-6">
         <section>
           <h2 className="text-lg font-semibold text-white">
-            {sampleEvents.length} good nights nearby
+            {events.length} good nights nearby
           </h2>
           <p className="mt-1 text-xs text-neutral-500">
             Nairobi, Kenya · Within 5 miles
           </p>
 
           <div className="mt-4 flex flex-col gap-3">
-            {sampleEvents.map((event) => (
+            {events.map((event) => (
               <NightCard
                 key={event.id}
                 event={event}
-                selected={event.id === selectedId}
+                selected={event.id === activeId}
                 onSelect={() => setSelectedId(event.id)}
               />
             ))}
