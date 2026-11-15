@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import DiscoverPage from './components/DiscoverPage';
 import HostPage from './components/HostPage';
+import ExploreMap from './pages/ExploreMap/ExploreMap';
 
 function Custom404() {
   const location = useLocation();
@@ -46,7 +47,7 @@ export default function App() {
         {/* Teammate Paths Created & Waiting to be Linked */}
         <Route path="/saved-nights" element={<Custom404 />} />
         <Route path="/my-tickets" element={<Custom404 />} />
-        <Route path="/explore" element={<Custom404 />} />
+        <Route path="/explore" element={<ExploreMap />} />
         <Route path="/host" element={<HostPage />} />
         <Route path="/events/:id" element={<Custom404 />} />
         <Route path="/gate-scanner" element={<Custom404 />} />
