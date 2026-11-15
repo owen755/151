@@ -1,3 +1,5 @@
+import CapacityBadge from './CapacityBadge'
+
 function formatPrice(price) {
   if (price === 'free') return 'Free'
   return 'KES ' + Number(price).toLocaleString()
@@ -27,7 +29,10 @@ export default function NightCard({ event, selected = false, onSelect }) {
         <p className="mt-1 text-xs text-neutral-400">
           {event.startTime} – {event.endTime}
         </p>
-        <p className="mt-2 text-xs text-white">{formatPrice(event.price)}</p>
+        <div className="mt-2 flex items-center gap-2">
+          <p className="text-xs text-white">{formatPrice(event.price)}</p>
+          <CapacityBadge spotsLeft={event.spotsLeft} capacity={event.capacity} />
+        </div>
         <p className="mt-2 text-xs text-[#c8f56a]">View night →</p>
       </div>
     </div>
