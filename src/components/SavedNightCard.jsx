@@ -31,15 +31,19 @@ export default function SavedNightCard({ night, onUnsave, onView }) {
           {night.category}
         </p>
         <h3 className="mt-1 text-lg font-bold text-white">{night.title}</h3>
-        <p className="mt-1 text-xs text-[#8b909a]">
-          {night.startTime} – {night.endTime} · {night.location?.venue}
-        </p>
-        <button
-          onClick={() => onView(night.id)}
-          className="mt-4 cursor-pointer rounded-full bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
-        >
-          View night
-        </button>
+        <div className="mt-3 flex items-end justify-between gap-3">
+          <p className="text-xs leading-relaxed text-[#8b909a]">
+            {night.startTime} – {night.endTime}
+            <br />
+            {night.location?.venue}
+          </p>
+          <button
+            onClick={() => onView(night.id)}
+            className="shrink-0 cursor-pointer rounded-full bg-[#d2ff38] px-4 py-2 text-xs font-bold text-[#0b0c0e] transition hover:brightness-110 active:scale-95"
+          >
+            View night
+          </button>
+        </div>
       </div>
     </article>
   );
