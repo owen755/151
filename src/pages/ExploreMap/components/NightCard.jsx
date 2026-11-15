@@ -3,9 +3,16 @@ function formatPrice(price) {
   return 'KES ' + Number(price).toLocaleString()
 }
 
-export default function NightCard({ event }) {
+export default function NightCard({ event, selected = false, onSelect }) {
+  const borderStyle = selected
+    ? 'border-[#c8f56a]'
+    : 'border-[#2a2c2f] hover:border-neutral-500'
+
   return (
-    <div className="flex gap-4 rounded-2xl border border-[#2a2c2f] bg-[#1b1c1f] p-3">
+    <div
+      onClick={onSelect}
+      className={`flex cursor-pointer gap-4 rounded-2xl border bg-[#1b1c1f] p-3 ${borderStyle}`}
+    >
       <img
         src={event.image}
         alt={event.title}

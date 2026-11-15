@@ -5,6 +5,7 @@ import { sampleEvents } from './sampleEvents'
 
 export default function ExploreMap() {
   const [search, setSearch] = useState('')
+  const [selectedId, setSelectedId] = useState(sampleEvents[0].id)
 
   return (
     <div className="min-h-screen px-11 py-10">
@@ -45,7 +46,12 @@ export default function ExploreMap() {
 
           <div className="mt-4 flex flex-col gap-3">
             {sampleEvents.map((event) => (
-              <NightCard key={event.id} event={event} />
+              <NightCard
+                key={event.id}
+                event={event}
+                selected={event.id === selectedId}
+                onSelect={() => setSelectedId(event.id)}
+              />
             ))}
           </div>
         </section>
