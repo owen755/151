@@ -22,12 +22,12 @@ const PRESET_FLYERS = [
 ];
 
 const NAIROBI_ZONES = [
-  { city: 'Westlands, Nairobi', neighborhood: 'WESTLANDS' },
-  { city: 'Kilimani, Nairobi', neighborhood: 'KILIMANI' },
-  { city: 'Karen, Nairobi', neighborhood: 'KAREN' },
-  { city: 'Lavington, Nairobi', neighborhood: 'LAVINGTON' },
-  { city: 'Kileleshwa, Nairobi', neighborhood: 'KILELESHWA' },
-  { city: 'Ngong Road, Nairobi', neighborhood: 'NGONG RD' }
+  { city: 'Westlands, Nairobi', neighborhood: 'WESTLANDS', lat: -1.2683, lng: 36.8111 },
+  { city: 'Kilimani, Nairobi', neighborhood: 'KILIMANI', lat: -1.2892, lng: 36.7869 },
+  { city: 'Karen, Nairobi', neighborhood: 'KAREN', lat: -1.3199, lng: 36.7085 },
+  { city: 'Lavington, Nairobi', neighborhood: 'LAVINGTON', lat: -1.2756, lng: 36.7665 },
+  { city: 'Kileleshwa, Nairobi', neighborhood: 'KILELESHWA', lat: -1.2814, lng: 36.7828 },
+  { city: 'Ngong Road, Nairobi', neighborhood: 'NGONG RD', lat: -1.3005, lng: 36.7758 }
 ];
 
 const VIBE_OPTIONS = [
@@ -89,16 +89,27 @@ export default function HostPage() {
     const zoneObj =
       NAIROBI_ZONES.find((z) => z.city === selectedZone) || NAIROBI_ZONES[0];
 
+    // Includes both nested location.venue (for db.json / Explore Map) and flat fields
     const newParty = {
       id: String(Date.now()),
-      city: zoneObj.city,
-      neighborhood: zoneObj.neighborhood,
-      pickLabel,
       title: title.trim(),
       subtitle: subtitle.trim(),
+      description: subtitle.trim(),
       venue: venue.trim(),
+      neighborhood: zoneObj.neighborhood,
+      city: zoneObj.city,
       distance: `${numericDist.toFixed(1)} km`,
       distanceKm: Number(numericDist.toFixed(1)),
+      location: {
+        venue: venue.trim(),
+        neighborhood: zoneObj.neighborhood,
+        city: zoneObj.city,
+        distance: `${numericDist.toFixed(1)} km`,
+        distanceKm: Number(numericDist.toFixed(1)),
+        lat: zoneObj.lat,
+        lng: zoneObj.lng
+      },
+      pickLabel,
       time: time.trim() || 'Tonight, 9 PM – late',
       price: numericPrice,
       tags: selectedTags,
@@ -108,12 +119,20 @@ export default function HostPage() {
 
     setIsSubmitting(true);
 
+    // 1. Save in sessionStorage so DiscoverPage shows it immediately
     try {
       const existing = JSON.parse(sessionStorage.getItem('aftr_hosted_events') || '[]');
       sessionStorage.setItem('aftr_hosted_events', JSON.stringify([newParty, ...existing]));
     } catch (err) {
       console.error(err);
     }
+
+    // 2. Also POST to json-server db.json if running on port 3000
+    fetch('http://localhost:3000/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newParty)
+    }).catch(() => {});
 
     setPublishSuccess(true);
     setTimeout(() => {
@@ -123,14 +142,9 @@ export default function HostPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#0b0c0e] text-[#f5f6f8] flex overflow-x-hidden">
-      {/* ================= LEFT SIDEBAR (Desktop lg+) ================= */}
-     
-      {/* Shared Sidebar Component */}
-      
-
-      {/* ================= MAIN WORKSPACE ================= */}
-      <div className="flex-1 flex flex-col px-4 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6 min-w-0"></div>
+      {/* ================= SHARED SIDEBAR COMPONENT ================= */}
       <Sidebar />
+
       {/* ================= MAIN WORKSPACE ================= */}
       <div className="flex-1 flex flex-col px-4 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6 min-w-0">
         {/* TOP BAR */}
@@ -184,7 +198,6 @@ export default function HostPage() {
               </div>
             )}
 
-            {/* Title & Venue */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
@@ -226,7 +239,6 @@ export default function HostPage() {
               />
             </div>
 
-            {/* Zone, Time, Badge */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div>
                 <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
@@ -276,7 +288,6 @@ export default function HostPage() {
               </div>
             </div>
 
-            {/* KSh Price, Spots Left, Distance */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div>
                 <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-1.5">
@@ -322,7 +333,6 @@ export default function HostPage() {
               </div>
             </div>
 
-            {/* Vibe Tags Selector */}
             <div>
               <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-2">
                 SELECT UP TO 3 VIBE TAGS
@@ -348,7 +358,6 @@ export default function HostPage() {
               </div>
             </div>
 
-            {/* Cover Flyer Image Picker */}
             <div>
               <label className="block text-[11px] font-bold tracking-wider text-[#8b909a] mb-2">
                 FLYER BACKGROUND IMAGE

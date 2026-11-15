@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
+
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000&auto=format&fit=crop&q=80';
 
@@ -14,6 +15,88 @@ const PARTY_IMAGES = [
   'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1000&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=1000&auto=format&fit=crop&q=80'
 ];
+
+// Normalizes both db.json nested shape (location.venue) and flat shape (venue)
+function normalizeEvent(ev, idx = 0) {
+  const locObj = ev.location && typeof ev.location === 'object' ? ev.location : {};
+
+  const venue =
+    locObj.venue ||
+    locObj.name ||
+    (typeof ev.location === 'string' ? ev.location : '') ||
+    ev.venue ||
+    'Nairobi Secret Venue';
+
+  const rawNeighborhood =
+    locObj.neighborhood ||
+    locObj.area ||
+    ev.neighborhood ||
+    locObj.city ||
+    ev.city ||
+    'NAIROBI';
+
+  const neighborhood = String(rawNeighborhood).split(',')[0].trim().toUpperCase();
+
+  const city =
+    locObj.city ||
+    ev.city ||
+    `${neighborhood.charAt(0) + neighborhood.slice(1).toLowerCase()}, Nairobi`;
+
+  const distNum =
+    typeof ev.distanceKm === 'number'
+      ? ev.distanceKm
+      : typeof locObj.distanceKm === 'number'
+      ? locObj.distanceKm
+      : parseFloat(locObj.distance || ev.distance) || Number((1.1 + (idx % 5) * 0.7).toFixed(1));
+
+  const distance = locObj.distance || ev.distance || `${distNum} km`;
+
+  const rawTags = Array.isArray(ev.tags)
+    ? ev.tags
+    : Array.isArray(ev.vibes)
+    ? ev.vibes
+    : ev.vibe
+    ? [ev.vibe]
+    : ev.category
+    ? [ev.category]
+    : ['House', 'Rooftop'];
+
+  const priceNum =
+    typeof ev.price === 'number'
+      ? ev.price
+      : typeof ev.cover === 'number'
+      ? ev.cover
+      : parseFloat(String(ev.price || ev.cover || '0').replace(/[^0-9.]/g, '')) || 0;
+
+  return {
+    ...ev,
+    id: String(ev.id ?? idx + 1),
+    title: ev.title || ev.name || 'Untitled Night',
+    subtitle:
+      ev.subtitle ||
+      ev.description ||
+      'A rooftop, a sunset, and your new favorite DJ.',
+    venue,
+    neighborhood,
+    city,
+    distance,
+    distanceKm: distNum,
+    location: {
+      ...locObj,
+      venue,
+      neighborhood,
+      city,
+      distance,
+      distanceKm: distNum
+    },
+    time: ev.time || ev.startTime || ev.date || 'Tonight, 9 PM – late',
+    price: priceNum,
+    tags: rawTags,
+    spotsLeft: ev.spotsLeft ?? ev.capacity ?? ev.spots ?? 12,
+    pickLabel: ev.pickLabel || ev.badge || "TONIGHT'S PICK",
+    image: ev.image || ev.imageUrl || ev.poster || PARTY_IMAGES[idx % PARTY_IMAGES.length]
+  };
+}
 
 function generate60TonightEvents() {
   const zones = [
@@ -104,23 +187,34 @@ function generate60TonightEvents() {
     const dist = Number((0.6 + ((i * 0.45) % 6.8)).toFixed(1));
     const price = kshPrices[i % kshPrices.length];
     const spotsLeft = 3 + ((i * 7) % 28);
+    const venueName = venues[i % venues.length];
 
-    return {
-      id: String(i + 1),
-      city: zone.area,
-      neighborhood: zone.neighborhood,
-      pickLabel: pickLabels[i % pickLabels.length],
-      title: `${baseTitle}${edition}`,
-      subtitle: subtitles[i % subtitles.length],
-      venue: `${venues[i % venues.length]}`,
-      distance: `${dist} km`,
-      distanceKm: dist,
-      time: startTimes[i % startTimes.length],
-      price,
-      tags: vibePairs[i % vibePairs.length],
-      spotsLeft,
-      image: PARTY_IMAGES[i % PARTY_IMAGES.length]
-    };
+    return normalizeEvent(
+      {
+        id: String(i + 1),
+        city: zone.area,
+        neighborhood: zone.neighborhood,
+        location: {
+          venue: venueName,
+          neighborhood: zone.neighborhood,
+          city: zone.area,
+          distance: `${dist} km`,
+          distanceKm: dist
+        },
+        pickLabel: pickLabels[i % pickLabels.length],
+        title: `${baseTitle}${edition}`,
+        subtitle: subtitles[i % subtitles.length],
+        venue: venueName,
+        distance: `${dist} km`,
+        distanceKm: dist,
+        time: startTimes[i % startTimes.length],
+        price,
+        tags: vibePairs[i % vibePairs.length],
+        spotsLeft,
+        image: PARTY_IMAGES[i % PARTY_IMAGES.length]
+      },
+      i
+    );
   });
 }
 
@@ -150,7 +244,6 @@ export default function DiscoverPage() {
   const [selectedLocation, setSelectedLocation] = useState('All Nairobi Zones');
   const [locationMenuOpen, setLocationMenuOpen] = useState(false);
 
-  // Search Bar States
   const [searchQuery, setSearchQuery] = useState('');
   const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
 
@@ -158,7 +251,7 @@ export default function DiscoverPage() {
   const [freeOnly, setFreeOnly] = useState(false);
   const [within5Km, setWithin5Km] = useState(false);
 
-  const [animState, setAnimState] = useState(''); // 'left' | 'right' | 'rewind'
+  const [animState, setAnimState] = useState('');
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0 });
@@ -173,18 +266,38 @@ export default function DiscoverPage() {
   const lastSurpriseIdRef = useRef(null);
   const rollIntervalRef = useRef(null);
 
+  // Sync with sessionStorage AND @saint8008's json-server db.json if running
   useEffect(() => {
+    let localHosted = [];
+    try {
+      const stored = JSON.parse(sessionStorage.getItem('aftr_hosted_events') || '[]');
+      if (Array.isArray(stored)) {
+        localHosted = stored.map((ev, i) => normalizeEvent(ev, i));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    if (localHosted.length > 0) {
+      setEvents([...localHosted, ...SIXTY_EVENTS]);
+    }
+
+    // Check if json-server is active on port 3000
     fetch('http://localhost:3000/events')
       .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((data) => {
-        if (Array.isArray(data) && data.length >= 10) {
-          setEvents(data);
+      .then((dbEvents) => {
+        if (Array.isArray(dbEvents) && dbEvents.length > 0) {
+          const normalizedDb = dbEvents.map((ev, idx) => normalizeEvent(ev, idx));
+          const existingIds = new Set(normalizedDb.map((e) => String(e.id)));
+          const extraFallback = SIXTY_EVENTS.filter((e) => !existingIds.has(String(e.id)));
+          setEvents([...localHosted, ...normalizedDb, ...extraFallback]);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Silently use localHosted + SIXTY_EVENTS when json-server is off
+      });
   }, []);
 
-  // Close Location & Search dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (locationDropdownRef.current && !locationDropdownRef.current.contains(e.target)) {
@@ -204,31 +317,32 @@ export default function DiscoverPage() {
     };
   }, []);
 
-  // Multi-field, multi-word live search + filter engine
+  // Multi-field search & filter supporting both location.venue and flat venue
   const filteredEvents = useMemo(() => {
     const rawQuery = searchQuery.trim().toLowerCase();
     const queryWords = rawQuery ? rawQuery.split(/\s+/) : [];
 
     return events.filter((ev) => {
-      const cityStr = (ev.city || '').toLowerCase();
+      const venueName = ev.location?.venue || ev.venue || '';
+      const neighborhoodName = ev.location?.neighborhood || ev.neighborhood || '';
+      const cityStr = (ev.location?.city || ev.city || '').toLowerCase();
+      const selectedZoneKeyword = selectedLocation.split(',')[0].trim().toLowerCase();
+
       const matchesLocation =
         selectedLocation === 'All Nairobi Zones' ||
         !cityStr ||
-        cityStr === selectedLocation.toLowerCase();
+        cityStr.includes(selectedZoneKeyword) ||
+        neighborhoodName.toLowerCase().includes(selectedZoneKeyword);
 
-      // Build a single searchable string from all event properties
-      const tagsList = Array.isArray(ev.tags)
-        ? ev.tags
-        : ev.vibe
-        ? [ev.vibe]
-        : [];
+      const tagsList = Array.isArray(ev.tags) ? ev.tags : [];
       const priceLabel = Number(ev.price) === 0 ? 'free 0' : `${ev.price} ksh`;
+
       const searchableBlob = [
         ev.title,
         ev.subtitle,
-        ev.venue,
-        ev.neighborhood,
-        ev.city,
+        venueName,
+        neighborhoodName,
+        cityStr,
         ev.pickLabel,
         ev.time,
         priceLabel,
@@ -238,7 +352,6 @@ export default function DiscoverPage() {
         .join(' ')
         .toLowerCase();
 
-      // Every word typed in the search box must match somewhere in the event
       const matchesSearch =
         queryWords.length === 0 ||
         queryWords.every((word) => searchableBlob.includes(word));
@@ -248,14 +361,16 @@ export default function DiscoverPage() {
         tagsList.some((t) => String(t).toLowerCase().includes(activeVibe.toLowerCase()));
 
       const matchesPrice = !freeOnly || Number(ev.price) === 0;
-      const distVal = typeof ev.distanceKm === 'number' ? ev.distanceKm : parseFloat(ev.distance) || 0;
+      const distVal =
+        typeof ev.distanceKm === 'number'
+          ? ev.distanceKm
+          : parseFloat(ev.location?.distance || ev.distance) || 0;
       const matchesDistance = !within5Km || distVal <= 5;
 
       return matchesLocation && matchesSearch && matchesVibe && matchesPrice && matchesDistance;
     });
   }, [events, selectedLocation, searchQuery, activeVibe, freeOnly, within5Km]);
 
-  // Keep currentIndex valid whenever search results change
   useEffect(() => {
     setCurrentIndex(0);
     setAnimState('');
@@ -265,12 +380,20 @@ export default function DiscoverPage() {
   const currentCard = filteredEvents[currentIndex];
   const nextCard = filteredEvents[currentIndex + 1];
 
-  // --- SWIPE LEFT (RED / PASS) & SWIPE RIGHT (GREEN / I'M IN) ---
+  // --- SWIPE LEFT (RED / PASS -> /skipped) & SWIPE RIGHT (GREEN / I'M IN -> /saved) ---
   const triggerSwipe = (direction) => {
     if (!currentCard || animState) return;
 
     setAnimState(direction);
     setDragOffset({ x: 0, y: 0 });
+
+    // Sync with @saint8008's db.json /saved and /skipped arrays if json-server is running
+    const endpoint = direction === 'right' ? 'saved' : 'skipped';
+    fetch(`http://localhost:3000/${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentCard)
+    }).catch(() => {});
 
     setTimeout(() => {
       setHistory((prev) => [...prev, { index: currentIndex, direction, card: currentCard }]);
@@ -297,7 +420,7 @@ export default function DiscoverPage() {
     setSurpriseCriteria(criteria);
 
     let candidates = [...basePool];
-    let reasonText = 'Curated match from tonight’s 60 live plots';
+    let reasonText = 'Curated match from tonight’s live plots';
 
     if (criteria === 'fit') {
       candidates = basePool.filter((ev) => ev.spotsLeft <= 15);
@@ -317,7 +440,7 @@ export default function DiscoverPage() {
 
     if (candidates.length === 0) {
       candidates = [...basePool];
-      reasonText = 'Wildcard pick from all 60 plots tonight';
+      reasonText = 'Wildcard pick from all live plots tonight';
     }
 
     const nonRepeatingPool =
@@ -351,6 +474,11 @@ export default function DiscoverPage() {
 
   const handleAcceptSurprise = () => {
     if (!surpriseEvent) return;
+    fetch('http://localhost:3000/saved', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(surpriseEvent)
+    }).catch(() => {});
     setSurpriseModalOpen(false);
     navigate(`/events/${surpriseEvent.id}`);
   };
@@ -424,13 +552,11 @@ export default function DiscoverPage() {
   const isLikingGreen = dragOffset.x > 25 || animState === 'right';
   const stampOpacity = animState ? 1 : Math.min(Math.abs(dragOffset.x) / 85, 1);
 
-      return (
+  return (
     <div className="min-h-screen w-full bg-[#0b0c0e] text-[#f5f6f8] flex overflow-x-hidden">
-      {/* Shared Sidebar Component */}
+      {/* ================= SHARED SIDEBAR COMPONENT ================= */}
       <Sidebar />
 
-      {/* ================= MAIN WORKSPACE ================= */}
-      <div className="flex-1 flex flex-col px-4 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6 min-w-0"></div>
       {/* ================= MAIN WORKSPACE ================= */}
       <div className="flex-1 flex flex-col px-4 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6 min-w-0">
         {/* TOP HEADER BAR */}
@@ -529,7 +655,7 @@ export default function DiscoverPage() {
           </button>
         </nav>
 
-        {/* HERO TITLE + SURPRISE ME + WORKING LIVE SEARCH + FILTER PILLS */}
+        {/* HERO TITLE + SURPRISE ME + LIVE SEARCH + FILTER PILLS */}
         <section className="my-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3.5">
             <div>
@@ -590,7 +716,6 @@ export default function DiscoverPage() {
                 )}
               </div>
 
-              {/* Instant Search Results Dropdown when typing */}
               {searchDropdownOpen && searchQuery.trim() !== '' && (
                 <div className="absolute top-full left-0 mt-2 w-full sm:w-80 bg-[#14171d] border border-[#d2ff38]/35 rounded-2xl p-2 shadow-2xl z-50 max-h-64 overflow-y-auto">
                   <div className="flex items-center justify-between px-2.5 py-1 text-[10px] font-bold tracking-wider text-[#8b909a]">
@@ -616,7 +741,7 @@ export default function DiscoverPage() {
                         <div className="min-w-0">
                           <div className="text-xs font-bold text-white truncate">{ev.title}</div>
                           <div className="text-[10px] text-[#8b909a] truncate">
-                            {ev.venue} • {ev.neighborhood} • {ev.tags.join(', ')}
+                            {ev.location?.venue || ev.venue} • {ev.location?.neighborhood || ev.neighborhood}
                           </div>
                         </div>
                         <span className="text-[11px] font-bold text-[#d2ff38] shrink-0">
@@ -734,7 +859,6 @@ export default function DiscoverPage() {
                       : 'border-white/[0.12] shadow-[0_18px_40px_rgba(0,0,0,0.65)]'
                   }`}
                 >
-                  {/* Full-Card Color Wash Overlay on Swipe Left (Red) or Right (Green) */}
                   {isLikingGreen && (
                     <div
                       style={{ opacity: stampOpacity * 0.35 }}
@@ -748,7 +872,6 @@ export default function DiscoverPage() {
                     />
                   )}
 
-                  {/* GREEN "I'M IN" STAMP */}
                   {isLikingGreen && (
                     <div
                       style={{ opacity: stampOpacity }}
@@ -758,7 +881,6 @@ export default function DiscoverPage() {
                     </div>
                   )}
 
-                  {/* RED "PASS" STAMP */}
                   {isPassingRed && (
                     <div
                       style={{ opacity: stampOpacity }}
@@ -768,7 +890,6 @@ export default function DiscoverPage() {
                     </div>
                   )}
 
-                  {/* Top Badges */}
                   <div className="relative z-10 flex items-center justify-between">
                     <span className="bg-[#d2ff38] text-[#0b0c0e] text-[10px] font-extrabold px-3 py-1 rounded-full">
                       {currentCard.pickLabel}
@@ -778,7 +899,6 @@ export default function DiscoverPage() {
                     </span>
                   </div>
 
-                  {/* Bottom Card Info */}
                   <div className="relative z-10">
                     <div className="flex flex-wrap gap-1.5 mb-2.5">
                       {currentCard.tags.map((tag) => (
@@ -804,7 +924,8 @@ export default function DiscoverPage() {
                     <div className="flex items-end justify-between">
                       <div className="flex flex-col gap-0.5 text-[12px] text-gray-300">
                         <span>
-                          {currentCard.venue} • {currentCard.distance}
+                          {currentCard.location?.venue || currentCard.venue} •{' '}
+                          {currentCard.location?.distance || currentCard.distance}
                         </span>
                         <span>{currentCard.time}</span>
                       </div>
@@ -826,7 +947,7 @@ export default function DiscoverPage() {
                 <div className="h-full rounded-[22px] bg-[#131519] border border-dashed border-white/15 flex flex-col items-center justify-center text-center p-6 gap-2.5">
                   <h3 className="text-base font-bold">No plots match that search tonight.</h3>
                   <p className="text-xs text-[#8b909a]">
-                    Reset your search or filters to browse all 60 live places.
+                    Reset your search or filters to browse all live places.
                   </p>
                   <button
                     onClick={() => {
@@ -845,7 +966,7 @@ export default function DiscoverPage() {
               )}
             </div>
 
-            {/* Color-Coded Swipe Action Buttons (Red Pass / Green I'm In) */}
+            {/* Swipe Action Buttons */}
             <div className="flex flex-col items-center mt-4">
               <div className="flex items-start gap-6">
                 <button
@@ -857,7 +978,6 @@ export default function DiscoverPage() {
                   ↺
                 </button>
 
-                {/* RED PASS BUTTON */}
                 <div className="flex flex-col items-center gap-1">
                   <button
                     onClick={() => triggerSwipe('left')}
@@ -871,7 +991,6 @@ export default function DiscoverPage() {
                   </span>
                 </div>
 
-                {/* GREEN I'M IN BUTTON */}
                 <div className="flex flex-col items-center gap-1">
                   <button
                     onClick={() => triggerSwipe('right')}
@@ -941,13 +1060,14 @@ export default function DiscoverPage() {
                     />
                     <div className="flex-1 min-w-0">
                       <span className="block text-[9px] font-bold tracking-wider text-[#d2ff38] truncate">
-                        {item.tags[0].toUpperCase()} • {item.neighborhood}
+                        {(item.tags?.[0] || 'PARTY').toUpperCase()} •{' '}
+                        {item.location?.neighborhood || item.neighborhood}
                       </span>
                       <h4 className="text-[14px] font-bold text-white truncate leading-snug">
                         {item.title}
                       </h4>
                       <span className="block text-[11px] text-[#8b909a] truncate">
-                        {item.time.split('–')[0]} • {item.distance}
+                        {item.time.split('–')[0]} • {item.location?.venue || item.venue}
                       </span>
                       <span className="block text-[11px] font-bold text-[#d2ff38]">
                         {formatKsh(item.price)}
@@ -1053,7 +1173,7 @@ export default function DiscoverPage() {
               TONIGHT'S FATE PICKER
             </span>
             <h2 className="text-xl font-extrabold">
-              {isRolling ? 'Scanning 60 live plots...' : 'We found your spot.'}
+              {isRolling ? 'Scanning live plots...' : 'We found your spot.'}
             </h2>
             <p className="text-[11px] text-[#d2ff38] mt-0.5 mb-3.5">
               {isRolling ? 'Matching your vibe & budget...' : matchReason}
@@ -1123,7 +1243,8 @@ export default function DiscoverPage() {
 
                 <div className="flex justify-between text-[11px] text-gray-300">
                   <span>
-                    {surpriseEvent.venue} ({surpriseEvent.distance})
+                    {surpriseEvent.location?.venue || surpriseEvent.venue} (
+                    {surpriseEvent.location?.distance || surpriseEvent.distance})
                   </span>
                   <span>{surpriseEvent.time}</span>
                 </div>
