@@ -1,211 +1,229 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar, { DEFAULT_LOCATIONS } from './Sidebar';
+import Sidebar from './Sidebar';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000&auto=format&fit=crop&q=80';
 
-const PARTY_IMAGES = [
-  'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1000&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1000&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1000&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=1000&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1000&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1000&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=1000&auto=format&fit=crop&q=80'
+// Exact 10 events from server/db.json
+export const DB_JSON_EVENTS = [
+  {
+    id: 1,
+    title: 'Detty Dezemba',
+    category: 'music',
+    description: 'Live Afro house artists in Nairobi, with a special guest perfomance.',
+    image: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/DettyDezembaFestPoster',
+    startTime: '19:00',
+    endTime: 'Till Dawn',
+    price: '4500',
+    currency: 'KES',
+    location: {
+      venue: 'Uhuru Gardens',
+      address: 'Nairobi, Uhuru Gardens',
+      lat: -1.32,
+      long: 36.8
+    }
+  },
+  {
+    id: 2,
+    title: 'Zawadi Band Perfomance',
+    category: 'music',
+    description:
+      'Come enjoy great music and great vibes. Order a drink and/or some food to top up your experience.',
+    image:
+      'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/WhatsApp_Image_2026-11-15_at_12.52.00',
+    startTime: '18:00',
+    endTime: '22:00',
+    price: 'free',
+    currency: 'KES',
+    location: {
+      venue: 'Sarova Stanley Hotel',
+      address: 'Kimathi Street',
+      lat: -1.28,
+      long: 36.82
+    }
+  },
+  {
+    id: 3,
+    title: 'Rhythm & Identity',
+    category: 'music',
+    description:
+      'Rhythm & Identity is a high energy cultural experience that brings together music, fashion and perfomance art in one immersive showcase.',
+    image: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/rafiki_alphabet',
+    startTime: '15:00',
+    endTime: '22:30',
+    price: '1000',
+    currency: 'KES',
+    location: {
+      venue: 'KICC Nairobi',
+      address: 'Nairobi, Uhuru Gardens',
+      lat: -1.29,
+      long: 36.82
+    }
+  },
+  {
+    id: 4,
+    title: 'HKSAI Education Champions GALA Dinner',
+    category: 'charity',
+    description: 'Live Afro house artists in Nairobi, with a special guest perfomance.',
+    image: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/hksai',
+    startTime: '17:00',
+    endTime: '22:00',
+    price: 'free',
+    currency: 'KES',
+    location: {
+      venue: 'Heron Hotel',
+      address: 'Jakaya Kikwete Road, Nairobi',
+      lat: -1.29,
+      long: 36.81
+    }
+  },
+  {
+    id: 5,
+    title: 'Research & Policy Series',
+    category: 'education',
+    description: 'Planetary AI - Data materiality in the Global South',
+    image: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/BIEA',
+    startTime: '16:00',
+    endTime: '17:30',
+    price: 'free',
+    currency: 'KES',
+    location: {
+      venue: 'The British Institute in Eastern Africa',
+      address: 'Laikipia Rd, Nairobi',
+      lat: -1.27,
+      long: 36.79
+    }
+  },
+  {
+    id: 6,
+    title: 'AmapianoLand',
+    category: 'music',
+    description:
+      'AmapianoLand heads to Nairobi for a huge outdoor Amapiano & Afrobeats day festival.',
+    image: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/amapianoland',
+    startTime: '16:00',
+    endTime: '01:00',
+    price: '2000',
+    currency: 'KES',
+    location: {
+      venue: 'MassHouse',
+      address: 'Ngong Racecourse,Nairobi',
+      lat: -1.3,
+      long: 36.74
+    }
+  },
+  {
+    id: 7,
+    title: 'MindTech Conference',
+    category: 'tech',
+    description: 'Where technology meets wellbeing.',
+    image: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/mindtech',
+    startTime: '10:00',
+    endTime: '18:00',
+    price: 'free',
+    currency: 'KES',
+    location: {
+      venue: 'KICC Nairobi',
+      address: 'Nairobi',
+      lat: -1.29,
+      long: 36.82
+    }
+  },
+  {
+    id: 8,
+    title: 'The Leadership Advantage',
+    category: 'education',
+    description:
+      'An executive leadership experience to sharpen their presence, amplify influence, inspire engagement, and unlock team potential.',
+    image: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/leadershipadvantage',
+    startTime: '09:00',
+    endTime: '16:30',
+    price: '23000',
+    currency: 'KES',
+    location: {
+      venue: 'The Piano',
+      address: 'Brookside Dr, Nairobi',
+      lat: -1.25,
+      long: 36.79
+    }
+  },
+  {
+    id: 9,
+    title: 'Pediatric Advanced Life Support Course',
+    category: 'wellness',
+    description:
+      "Join our in-person Pediatric Advanced Life Support Course to boost your skills and save kids' lives.",
+    image: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/pals',
+    startTime: '08:00',
+    endTime: '15:00',
+    price: '8500',
+    currency: 'KES',
+    location: {
+      venue: 'The QuickFix Learning Hub - Hurlingham',
+      address: 'Argwings Kodhek Rd, Nairobi',
+      lat: -1.29,
+      long: 36.79
+    }
+  },
+  {
+    id: 10,
+    title: 'Nairobi Social and Political Walk',
+    category: 'wellness',
+    description:
+      'The interactive storytelling walk is meant to have the flow and information-heavy experience of a documemntary',
+    image: 'https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/socialwalk',
+    startTime: '10:00',
+    endTime: '12:30',
+    price: '4000',
+    currency: 'KES',
+    location: {
+      venue: 'City Square Post Office',
+      address: 'Haile Selassie Ave, Nairobi',
+      lat: -1.29,
+      long: 36.82
+    }
+  }
 ];
 
-// Normalizes db.json nested shape (location.venue, etc.) so every field works seamlessly
-export function normalizeEvent(ev, idx = 0) {
-  const locObj = ev.location && typeof ev.location === 'object' ? ev.location : {};
-
-  const venue =
-    locObj.venue ||
-    locObj.name ||
-    (typeof ev.location === 'string' ? ev.location : '') ||
-    ev.venue ||
-    'Nairobi Venue';
-
-  const rawNeighborhood =
-    locObj.neighborhood ||
-    locObj.area ||
-    ev.neighborhood ||
-    locObj.address ||
-    locObj.city ||
-    ev.city ||
-    venue;
-
-  const neighborhood = String(rawNeighborhood).split(',')[0].trim().toUpperCase();
-
-  const city =
-    locObj.city ||
-    ev.city ||
-    `${neighborhood.charAt(0) + neighborhood.slice(1).toLowerCase()}, Nairobi`;
-
-  const distNum =
-    typeof ev.distanceKm === 'number'
-      ? ev.distanceKm
-      : typeof locObj.distanceKm === 'number'
-      ? locObj.distanceKm
-      : parseFloat(locObj.distance || ev.distance) || Number((1.2 + (idx % 5) * 0.6).toFixed(1));
-
-  const distance = locObj.distance || ev.distance || `${distNum} km`;
-
-  const rawTags = Array.isArray(ev.tags)
-    ? ev.tags
-    : Array.isArray(ev.vibes)
-    ? ev.vibes
-    : Array.isArray(ev.genre)
-    ? ev.genre
-    : ev.vibe
-    ? [ev.vibe]
-    : ev.genre
-    ? [ev.genre]
-    : ev.category
-    ? [ev.category]
-    : ['Nightlife'];
-
-  const priceNum =
-    typeof ev.price === 'number'
-      ? ev.price
-      : typeof ev.cover === 'number'
-      ? ev.cover
-      : typeof ev.ticketPrice === 'number'
-      ? ev.ticketPrice
-      : parseFloat(String(ev.price ?? ev.cover ?? ev.ticketPrice ?? '0').replace(/[^0-9.]/g, '')) || 0;
-
-  return {
-    ...ev,
-    id: String(ev.id ?? idx + 1),
-    title: ev.title || ev.name || 'Untitled Night',
-    subtitle:
-      ev.subtitle ||
-      ev.description ||
-      ev.tagline ||
-      'A rooftop, a sunset, and your new favorite DJ.',
-    venue,
-    neighborhood,
-    city,
-    distance,
-    distanceKm: distNum,
-    location: {
-      ...locObj,
-      venue,
-      neighborhood,
-      city,
-      distance,
-      distanceKm: distNum
-    },
-    time: ev.time || ev.startTime || ev.date || 'Tonight, 9 PM – late',
-    price: priceNum,
-    tags: rawTags,
-    spotsLeft: ev.spotsLeft ?? ev.capacity ?? ev.spots ?? 12,
-    pickLabel: ev.pickLabel || ev.badge || "TONIGHT'S PICK",
-    image: ev.image || ev.imageUrl || ev.poster || PARTY_IMAGES[idx % PARTY_IMAGES.length]
-  };
+// Calculates distance in km from Nairobi center (-1.286, 36.817) using location.lat & location.long
+function getDistanceKm(location) {
+  const lat = Number(location?.lat ?? -1.29);
+  const lng = Number(location?.long ?? location?.lng ?? 36.82);
+  const dLat = (lat - -1.286) * 111;
+  const dLng = (lng - 36.817) * 111;
+  const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+  return Number(Math.max(0.4, dist).toFixed(1));
 }
 
-// Offline fallback events used ONLY if json-server is not running
-function generateFallbackEvents() {
-  const zones = [
-    { area: 'Westlands, Nairobi', neighborhood: 'WESTLANDS' },
-    { area: 'Kilimani, Nairobi', neighborhood: 'KILIMANI' },
-    { area: 'Karen, Nairobi', neighborhood: 'KAREN' },
-    { area: 'Lavington, Nairobi', neighborhood: 'LAVINGTON' },
-    { area: 'Kileleshwa, Nairobi', neighborhood: 'KILELESHWA' },
-    { area: 'Ngong Road, Nairobi', neighborhood: 'NGONG RD' }
-  ];
-
-  const titles = [
-    'Above the city.',
-    'Basement frequencies',
-    'Disco, not dead.',
-    'Velvet Afterhours',
-    'Skyline Amapiano Sundowner',
-    'Westlands Bass Bunker',
-    'Neon Rooftop Sessions',
-    'Midnight Vinyl Society',
-    'Subzero Warehouse Rave',
-    'Afro-House & Sunset Grill',
-    'Golden Hour Penthouse',
-    'Underground Drill & Bass'
-  ];
-
-  const venues = [
-    'The Alchemist Deck',
-    'Kilimani Penthouse Loft',
-    '1824 Secret Courtyard',
-    'K1 Klubhouse Vault',
-    'SkyLuxx Panorama Lounge',
-    'Karen Oasis Villa'
-  ];
-
-  const vibePairs = [
-    ['House', 'Rooftop'],
-    ['Techno', 'Warehouse'],
-    ['Amapiano', 'Afrobeats'],
-    ['Disco', 'House'],
-    ['Hip-Hop', 'Lounge'],
-    ['Afrobeats', 'Rooftop']
-  ];
-
-  const subtitles = [
-    'A rooftop, a sunset, and your new favorite DJ.',
-    'Raw industrial warehouse sound system all night.',
-    'Vinyl-only grooves, mirrorballs, and zero pretension.',
-    'Late-night amapiano log drums and secret guest sets.'
-  ];
-
-  const kshPrices = [0, 500, 1000, 1500, 2000];
-
-  return Array.from({ length: 12 }, (_, i) => {
-    const zone = zones[i % zones.length];
-    const dist = Number((0.8 + ((i * 0.5) % 5.5)).toFixed(1));
-    const venueName = venues[i % venues.length];
-
-    return normalizeEvent(
-      {
-        id: String(i + 1),
-        title: titles[i % titles.length],
-        subtitle: subtitles[i % subtitles.length],
-        location: {
-          venue: venueName,
-          neighborhood: zone.neighborhood,
-          city: zone.area,
-          distance: `${dist} km`,
-          distanceKm: dist
-        },
-        time: 'Tonight, 9 PM – late',
-        price: kshPrices[i % kshPrices.length],
-        tags: vibePairs[i % vibePairs.length],
-        spotsLeft: 5 + ((i * 3) % 20),
-        image: PARTY_IMAGES[i % PARTY_IMAGES.length]
-      },
-      i
-    );
-  });
+function getNumericPrice(priceVal) {
+  if (priceVal === undefined || priceVal === null) return 0;
+  if (String(priceVal).toLowerCase() === 'free') return 0;
+  const parsed = parseFloat(String(priceVal).replace(/[^0-9.]/g, ''));
+  return Number.isNaN(parsed) ? 0 : parsed;
 }
 
-const FALLBACK_EVENTS = generateFallbackEvents();
-
-const formatKsh = (amount) =>
-  Number(amount) === 0 ? 'Free' : `KSh ${Number(amount).toLocaleString()}`;
+function formatPriceLabel(priceVal, currency = 'KES') {
+  const num = getNumericPrice(priceVal);
+  if (num === 0) return 'Free';
+  return `${currency} ${num.toLocaleString()}`;
+}
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
 
-  const [events, setEvents] = useState(FALLBACK_EVENTS);
+  const [events, setEvents] = useState(DB_JSON_EVENTS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [history, setHistory] = useState([]);
-  const [nearbyVisibleCount, setNearbyVisibleCount] = useState(8);
+  const [nearbyVisibleCount, setNearbyVisibleCount] = useState(10);
 
   const [selectedLocation, setSelectedLocation] = useState('All Nairobi Zones');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
 
-  const [activeVibe, setActiveVibe] = useState('All vibes');
+  // Matches exact categories in server/db.json
+  const [activeCategory, setActiveCategory] = useState('All categories');
   const [freeOnly, setFreeOnly] = useState(false);
   const [within5Km, setWithin5Km] = useState(false);
 
@@ -223,45 +241,44 @@ export default function DiscoverPage() {
   const lastSurpriseIdRef = useRef(null);
   const rollIntervalRef = useRef(null);
 
-  // Fetch ONLY real events from @saint8008's server/db.json when json-server is running
+  // Load any session-hosted events + fetch live from server/db.json if json-server is running
   useEffect(() => {
     let localHosted = [];
     try {
       const stored = JSON.parse(sessionStorage.getItem('aftr_hosted_events') || '[]');
       if (Array.isArray(stored)) {
-        localHosted = stored.map((ev, i) => normalizeEvent(ev, i));
+        localHosted = stored;
       }
     } catch (err) {
       console.error(err);
+    }
+
+    if (localHosted.length > 0) {
+      setEvents([...localHosted, ...DB_JSON_EVENTS]);
     }
 
     fetch('http://localhost:3000/events')
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((dbEvents) => {
         if (Array.isArray(dbEvents) && dbEvents.length > 0) {
-          const normalizedDb = dbEvents.map((ev, idx) => normalizeEvent(ev, idx));
-          const dbIds = new Set(normalizedDb.map((e) => String(e.id)));
+          const dbIds = new Set(dbEvents.map((e) => String(e.id)));
           const unsyncedLocal = localHosted.filter((e) => !dbIds.has(String(e.id)));
-          // Uses ONLY db.json events (+ any session-hosted events)
-          setEvents([...unsyncedLocal, ...normalizedDb]);
-        } else if (localHosted.length > 0) {
-          setEvents([...localHosted, ...FALLBACK_EVENTS]);
+          setEvents([...unsyncedLocal, ...dbEvents]);
         }
       })
       .catch(() => {
-        if (localHosted.length > 0) {
-          setEvents([...localHosted, ...FALLBACK_EVENTS]);
-        }
+        // Uses DB_JSON_EVENTS when json-server is not running
       });
   }, []);
 
-  // Build dynamic location options from db.json events + defaults
+  // Build Location Dropdown directly from the venues & addresses in db.json
   const dynamicLocations = useMemo(() => {
-    const zoneSet = new Set(DEFAULT_LOCATIONS);
+    const locs = new Set(['All Nairobi Zones']);
     events.forEach((ev) => {
-      if (ev.location?.city) zoneSet.add(ev.location.city);
+      if (ev.location?.venue) locs.add(ev.location.venue);
+      if (ev.location?.address) locs.add(ev.location.address);
     });
-    return Array.from(zoneSet);
+    return Array.from(locs);
   }, [events]);
 
   useEffect(() => {
@@ -280,36 +297,32 @@ export default function DiscoverPage() {
     };
   }, []);
 
+  // Filter & Search using the exact server/db.json schema
   const filteredEvents = useMemo(() => {
     const rawQuery = searchQuery.trim().toLowerCase();
     const queryWords = rawQuery ? rawQuery.split(/\s+/) : [];
 
     return events.filter((ev) => {
-      const venueName = ev.location?.venue || ev.venue || '';
-      const neighborhoodName = ev.location?.neighborhood || ev.neighborhood || '';
-      const cityStr = (ev.location?.city || ev.city || '').toLowerCase();
-      const selectedZoneKeyword = selectedLocation.split(',')[0].trim().toLowerCase();
+      const venue = ev.location?.venue || '';
+      const address = ev.location?.address || '';
+      const category = ev.category || '';
+      const priceNum = getNumericPrice(ev.price);
+      const distKm = getDistanceKm(ev.location);
 
       const matchesLocation =
         selectedLocation === 'All Nairobi Zones' ||
-        !cityStr ||
-        cityStr.includes(selectedZoneKeyword) ||
-        neighborhoodName.toLowerCase().includes(selectedZoneKeyword) ||
-        venueName.toLowerCase().includes(selectedZoneKeyword);
-
-      const tagsList = Array.isArray(ev.tags) ? ev.tags : [];
-      const priceLabel = Number(ev.price) === 0 ? 'free 0' : `${ev.price} ksh`;
+        venue.toLowerCase().includes(selectedLocation.toLowerCase()) ||
+        address.toLowerCase().includes(selectedLocation.toLowerCase());
 
       const searchableBlob = [
         ev.title,
-        ev.subtitle,
-        venueName,
-        neighborhoodName,
-        cityStr,
-        ev.pickLabel,
-        ev.time,
-        priceLabel,
-        ...tagsList
+        ev.description,
+        category,
+        venue,
+        address,
+        ev.startTime,
+        ev.endTime,
+        priceNum === 0 ? 'free 0' : `${ev.price} kes ksh`
       ]
         .filter(Boolean)
         .join(' ')
@@ -319,37 +332,39 @@ export default function DiscoverPage() {
         queryWords.length === 0 ||
         queryWords.every((word) => searchableBlob.includes(word));
 
-      const matchesVibe =
-        activeVibe === 'All vibes' ||
-        tagsList.some((t) => String(t).toLowerCase().includes(activeVibe.toLowerCase()));
+      const matchesCategory =
+        activeCategory === 'All categories' ||
+        category.toLowerCase() === activeCategory.toLowerCase();
 
-      const matchesPrice = !freeOnly || Number(ev.price) === 0;
-      const distVal =
-        typeof ev.distanceKm === 'number'
-          ? ev.distanceKm
-          : parseFloat(ev.location?.distance || ev.distance) || 0;
-      const matchesDistance = !within5Km || distVal <= 5;
+      const matchesPrice = !freeOnly || priceNum === 0;
+      const matchesDistance = !within5Km || distKm <= 5;
 
-      return matchesLocation && matchesSearch && matchesVibe && matchesPrice && matchesDistance;
+      return (
+        matchesLocation &&
+        matchesSearch &&
+        matchesCategory &&
+        matchesPrice &&
+        matchesDistance
+      );
     });
-  }, [events, selectedLocation, searchQuery, activeVibe, freeOnly, within5Km]);
+  }, [events, selectedLocation, searchQuery, activeCategory, freeOnly, within5Km]);
 
   useEffect(() => {
     setCurrentIndex(0);
     setAnimState('');
     setDragOffset({ x: 0, y: 0 });
-  }, [searchQuery, selectedLocation, activeVibe, freeOnly, within5Km]);
+  }, [searchQuery, selectedLocation, activeCategory, freeOnly, within5Km]);
 
   const currentCard = filteredEvents[currentIndex];
   const nextCard = filteredEvents[currentIndex + 1];
 
+  // --- SWIPE LEFT (RED -> /skipped) & SWIPE RIGHT (GREEN -> /saved) ---
   const triggerSwipe = (direction) => {
     if (!currentCard || animState) return;
 
     setAnimState(direction);
     setDragOffset({ x: 0, y: 0 });
 
-    // Post to @saint8008's db.json /saved or /skipped array when json-server is active
     const endpoint = direction === 'right' ? 'saved' : 'skipped';
     fetch(`http://localhost:3000/${endpoint}`, {
       method: 'POST',
@@ -374,6 +389,7 @@ export default function DiscoverPage() {
     setTimeout(() => setAnimState(''), 280);
   };
 
+  // --- SURPRISE ME RANDOM MATCHER (Using db.json events) ---
   const pickRandomSuitableEvent = (criteria = surpriseCriteria) => {
     if (rollIntervalRef.current) clearInterval(rollIntervalRef.current);
 
@@ -382,32 +398,32 @@ export default function DiscoverPage() {
     setSurpriseCriteria(criteria);
 
     let candidates = [...basePool];
-    let reasonText = `Curated match from tonight’s ${basePool.length} live plots`;
+    let reasonText = `Curated match from ${basePool.length} Nairobi events`;
 
     if (criteria === 'fit') {
-      candidates = basePool.filter((ev) => ev.spotsLeft <= 15);
-      reasonText = 'High-energy crowd favorite tonight';
+      candidates = basePool.filter((ev) => ev.category === 'music');
+      reasonText = 'High-energy music & nightlife pick';
     } else if (criteria === 'closest') {
       candidates = [...basePool]
-        .sort((a, b) => a.distanceKm - b.distanceKm)
-        .slice(0, Math.max(4, Math.floor(basePool.length * 0.4)));
-      reasonText = 'Selected from the closest venues near you';
+        .sort((a, b) => getDistanceKm(a.location) - getDistanceKm(b.location))
+        .slice(0, 4);
+      reasonText = 'Selected from the closest venues to central Nairobi';
     } else if (criteria === 'budget') {
-      candidates = basePool.filter((e) => e.price <= 1000);
-      reasonText = 'Budget friendly • KSh 1,000 or less';
+      candidates = basePool.filter((e) => getNumericPrice(e.price) <= 2000);
+      reasonText = 'Budget friendly • KES 2,000 or less';
     } else if (criteria === 'free') {
-      candidates = basePool.filter((e) => e.price === 0);
-      reasonText = 'Zero cover charge tonight';
+      candidates = basePool.filter((e) => getNumericPrice(e.price) === 0);
+      reasonText = 'Free entry event';
     }
 
     if (candidates.length === 0) {
       candidates = [...basePool];
-      reasonText = 'Wildcard pick from tonight’s live plots';
+      reasonText = 'Wildcard pick from all Nairobi events';
     }
 
     const nonRepeatingPool =
       candidates.length > 1
-        ? candidates.filter((c) => c.id !== lastSurpriseIdRef.current)
+        ? candidates.filter((c) => String(c.id) !== String(lastSurpriseIdRef.current))
         : candidates;
 
     const finalWinner =
@@ -533,6 +549,7 @@ export default function DiscoverPage() {
           </div>
 
           <button
+            type="button"
             onClick={handleSurpriseMe}
             className="w-full sm:w-auto bg-[#d2ff38] text-[#0b0c0e] font-bold text-[13px] px-6 py-2.5 rounded-full hover:brightness-110 active:scale-95 transition cursor-pointer shadow-[0_6px_20px_rgba(210,255,56,0.28)]"
           >
@@ -562,7 +579,7 @@ export default function DiscoverPage() {
                     setSearchDropdownOpen(false);
                   }
                 }}
-                placeholder="Search party, venue, vibe, zone..."
+                placeholder="Search event, venue, category..."
                 className="bg-transparent border-none outline-none text-[12px] text-white placeholder-[#8b909a] w-full"
               />
               {searchQuery && (
@@ -584,16 +601,16 @@ export default function DiscoverPage() {
             {searchDropdownOpen && searchQuery.trim() !== '' && (
               <div className="absolute top-full left-0 mt-2 w-full sm:w-80 bg-[#14171d] border border-[#d2ff38]/35 rounded-2xl p-2 shadow-2xl z-50 max-h-64 overflow-y-auto">
                 <div className="flex items-center justify-between px-2.5 py-1 text-[10px] font-bold tracking-wider text-[#8b909a]">
-                  <span>MATCHING PLOTS ({filteredEvents.length})</span>
-                  <span>PRESS ENTER TO FILTER</span>
+                  <span>MATCHING EVENTS ({filteredEvents.length})</span>
+                  <span>PRESS ENTER</span>
                 </div>
 
                 {filteredEvents.length === 0 ? (
                   <div className="px-3 py-3 text-xs text-[#8b909a]">
-                    No parties match “{searchQuery}”. Try another vibe or venue.
+                    No events match “{searchQuery}”.
                   </div>
                 ) : (
-                  filteredEvents.slice(0, 8).map((ev, idx) => (
+                  filteredEvents.map((ev, idx) => (
                     <button
                       key={ev.id}
                       type="button"
@@ -606,12 +623,11 @@ export default function DiscoverPage() {
                       <div className="min-w-0">
                         <div className="text-xs font-bold text-white truncate">{ev.title}</div>
                         <div className="text-[10px] text-[#8b909a] truncate">
-                          {ev.location?.venue || ev.venue} •{' '}
-                          {ev.location?.neighborhood || ev.neighborhood}
+                          {ev.location?.venue} • {ev.category}
                         </div>
                       </div>
                       <span className="text-[11px] font-bold text-[#d2ff38] shrink-0">
-                        {formatKsh(ev.price)}
+                        {formatPriceLabel(ev.price, ev.currency)}
                       </span>
                     </button>
                   ))
@@ -621,10 +637,11 @@ export default function DiscoverPage() {
           </div>
 
           <button
+            type="button"
             onClick={() => {
               setSearchQuery('');
               setSelectedLocation('All Nairobi Zones');
-              setActiveVibe('All vibes');
+              setActiveCategory('All categories');
               setFreeOnly(false);
               setWithin5Km(false);
             }}
@@ -634,6 +651,7 @@ export default function DiscoverPage() {
           </button>
 
           <button
+            type="button"
             onClick={() => setWithin5Km(!within5Km)}
             className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition cursor-pointer ${
               within5Km
@@ -645,29 +663,31 @@ export default function DiscoverPage() {
           </button>
 
           <button
+            type="button"
             onClick={() => {
-              const vibes = [
-                'All vibes',
-                'House',
-                'Techno',
-                'Amapiano',
-                'Disco',
-                'Afrobeats',
-                'Rooftop'
+              const categories = [
+                'All categories',
+                'music',
+                'charity',
+                'education',
+                'tech',
+                'wellness'
               ];
-              const next = vibes[(vibes.indexOf(activeVibe) + 1) % vibes.length];
-              setActiveVibe(next);
+              const next =
+                categories[(categories.indexOf(activeCategory) + 1) % categories.length];
+              setActiveCategory(next);
             }}
-            className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition cursor-pointer ${
-              activeVibe !== 'All vibes'
+            className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition cursor-pointer capitalize ${
+              activeCategory !== 'All categories'
                 ? 'bg-[#1e2418] text-[#d2ff38] border-[#d2ff38]/40'
                 : 'bg-[#15181d] text-[#8b909a] border-white/[0.08] hover:text-white'
             }`}
           >
-            {activeVibe}
+            {activeCategory}
           </button>
 
           <button
+            type="button"
             onClick={() => setFreeOnly(!freeOnly)}
             className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition cursor-pointer ${
               freeOnly
@@ -679,10 +699,11 @@ export default function DiscoverPage() {
           </button>
 
           <button
+            type="button"
             onClick={() => navigate('/explore')}
             className="px-3.5 py-1.5 rounded-full text-[12px] font-medium bg-[#15181d] text-[#8b909a] border border-white/[0.08] hover:text-white cursor-pointer"
           >
-            Filters
+            Explore Map
           </button>
         </div>
       </section>
@@ -699,7 +720,9 @@ export default function DiscoverPage() {
             </span>
             <span>
               {filteredEvents.length > 0 && currentCard
-                ? `${String(currentIndex + 1).padStart(2, '0')} / ${String(filteredEvents.length).padStart(2, '0')}`
+                ? `${String(currentIndex + 1).padStart(2, '0')} / ${String(
+                    filteredEvents.length
+                  ).padStart(2, '0')}`
                 : '00 / 00'}
             </span>
           </div>
@@ -763,47 +786,51 @@ export default function DiscoverPage() {
                   </div>
                 )}
 
+                {/* Top Badges */}
                 <div className="relative z-10 flex items-center justify-between">
-                  <span className="bg-[#d2ff38] text-[#0b0c0e] text-[10px] font-extrabold px-3 py-1 rounded-full">
-                    {currentCard.pickLabel}
+                  <span className="bg-[#d2ff38] text-[#0b0c0e] text-[10px] font-extrabold px-3 py-1 rounded-full uppercase">
+                    TONIGHT'S {currentCard.category || 'PICK'}
                   </span>
                   <span className="bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1 rounded-full border border-white/15">
-                    {currentCard.price === 0 ? 'Free' : `${formatKsh(currentCard.price)} cover`}
+                    {getNumericPrice(currentCard.price) === 0
+                      ? 'Free Entry'
+                      : `${formatPriceLabel(currentCard.price, currentCard.currency)} cover`}
                   </span>
                 </div>
 
+                {/* Bottom Card Info (Reads directly from server/db.json fields) */}
                 <div className="relative z-10">
                   <div className="flex flex-wrap gap-1.5 mb-2.5">
-                    {currentCard.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="bg-white/15 backdrop-blur-md text-white text-[11px] px-2.5 py-0.5 rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                    <span className="bg-white/15 backdrop-blur-md text-white text-[11px] px-2.5 py-0.5 rounded-full capitalize">
+                      {currentCard.category}
+                    </span>
+                    <span className="bg-white/15 backdrop-blur-md text-white text-[11px] px-2.5 py-0.5 rounded-full">
+                      {currentCard.location?.address}
+                    </span>
                     <span className="bg-[#d2ff38]/20 text-[#d2ff38] border border-[#d2ff38]/35 text-[11px] px-2.5 py-0.5 rounded-full font-semibold">
-                      {currentCard.spotsLeft} spots left
+                      {getDistanceKm(currentCard.location)} km away
                     </span>
                   </div>
 
                   <h2 className="text-[26px] sm:text-[32px] font-extrabold tracking-tight leading-tight mb-1">
                     {currentCard.title}
                   </h2>
-                  <p className="text-[12px] sm:text-[13px] text-gray-300 mb-3.5">
-                    {currentCard.subtitle}
+                  <p className="text-[12px] sm:text-[13px] text-gray-300 mb-3.5 line-clamp-2">
+                    {currentCard.description}
                   </p>
 
                   <div className="flex items-end justify-between">
                     <div className="flex flex-col gap-0.5 text-[12px] text-gray-300">
                       <span>
-                        {currentCard.location?.venue || currentCard.venue} •{' '}
-                        {currentCard.location?.distance || currentCard.distance}
+                        {currentCard.location?.venue} • {currentCard.location?.address}
                       </span>
-                      <span>{currentCard.time}</span>
+                      <span>
+                        {currentCard.startTime} – {currentCard.endTime}
+                      </span>
                     </div>
 
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/events/${currentCard.id}`);
@@ -818,15 +845,16 @@ export default function DiscoverPage() {
               </div>
             ) : (
               <div className="h-full rounded-[22px] bg-[#131519] border border-dashed border-white/15 flex flex-col items-center justify-center text-center p-6 gap-2.5">
-                <h3 className="text-base font-bold">No plots match that search tonight.</h3>
+                <h3 className="text-base font-bold">No events match that filter tonight.</h3>
                 <p className="text-xs text-[#8b909a]">
-                  Reset your search or filters to browse all live places.
+                  Reset your search or filters to browse all Nairobi events.
                 </p>
                 <button
+                  type="button"
                   onClick={() => {
                     setCurrentIndex(0);
                     setSearchQuery('');
-                    setActiveVibe('All vibes');
+                    setActiveCategory('All categories');
                     setFreeOnly(false);
                     setWithin5Km(false);
                     setSelectedLocation('All Nairobi Zones');
@@ -843,6 +871,7 @@ export default function DiscoverPage() {
           <div className="flex flex-col items-center mt-4">
             <div className="flex items-start gap-6">
               <button
+                type="button"
                 onClick={handleUndo}
                 disabled={history.length === 0}
                 title="Undo last swipe"
@@ -853,6 +882,7 @@ export default function DiscoverPage() {
 
               <div className="flex flex-col items-center gap-1">
                 <button
+                  type="button"
                   onClick={() => triggerSwipe('left')}
                   disabled={!currentCard}
                   className="w-14 h-14 rounded-full bg-red-500/15 border-2 border-red-500/60 text-red-400 hover:bg-red-500 hover:text-white flex items-center justify-center text-lg font-bold cursor-pointer shadow-[0_6px_20px_rgba(239,68,68,0.25)] transition active:scale-90"
@@ -866,6 +896,7 @@ export default function DiscoverPage() {
 
               <div className="flex flex-col items-center gap-1">
                 <button
+                  type="button"
                   onClick={() => triggerSwipe('right')}
                   disabled={!currentCard}
                   className="w-16 h-16 rounded-full bg-emerald-400 text-[#0b0c0e] hover:bg-emerald-300 flex items-center justify-center text-xl font-black cursor-pointer shadow-[0_6px_24px_rgba(34,197,94,0.45)] transition active:scale-90"
@@ -897,6 +928,7 @@ export default function DiscoverPage() {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => navigate('/explore')}
               className="hidden sm:inline-flex lg:hidden items-center gap-1.5 text-[12px] font-semibold border border-white/[0.08] px-3.5 py-1.5 rounded-full hover:bg-white/5 cursor-pointer"
             >
@@ -907,7 +939,7 @@ export default function DiscoverPage() {
           {filteredEvents.length === 0 ? (
             <div className="bg-[#131519] border border-white/[0.08] rounded-2xl p-5 text-center my-2">
               <p className="text-xs text-[#8b909a]">
-                No nearby parties match “{searchQuery}”.
+                No nearby events match “{searchQuery}”.
               </p>
             </div>
           ) : (
@@ -932,21 +964,21 @@ export default function DiscoverPage() {
                     className="w-16 h-16 rounded-xl object-cover shrink-0 bg-[#1a1d24]"
                   />
                   <div className="flex-1 min-w-0">
-                    <span className="block text-[9px] font-bold tracking-wider text-[#d2ff38] truncate">
-                      {(item.tags?.[0] || 'PARTY').toUpperCase()} •{' '}
-                      {item.location?.neighborhood || item.neighborhood}
+                    <span className="block text-[9px] font-bold tracking-wider text-[#d2ff38] truncate uppercase">
+                      {item.category} • {item.location?.venue}
                     </span>
                     <h4 className="text-[14px] font-bold text-white truncate leading-snug">
                       {item.title}
                     </h4>
                     <span className="block text-[11px] text-[#8b909a] truncate">
-                      {item.time.split('–')[0]} • {item.location?.venue || item.venue}
+                      {item.startTime} – {item.endTime} • {item.location?.address}
                     </span>
                     <span className="block text-[11px] font-bold text-[#d2ff38]">
-                      {formatKsh(item.price)}
+                      {formatPriceLabel(item.price, item.currency)}
                     </span>
                   </div>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/events/${item.id}`);
@@ -963,8 +995,9 @@ export default function DiscoverPage() {
 
           {nearbyVisibleCount < filteredEvents.length && (
             <button
+              type="button"
               onClick={() =>
-                setNearbyVisibleCount((prev) => Math.min(prev + 12, filteredEvents.length))
+                setNearbyVisibleCount((prev) => Math.min(prev + 10, filteredEvents.length))
               }
               className="w-full mt-2 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] text-[11px] font-semibold text-[#d2ff38] cursor-pointer transition"
             >
@@ -973,6 +1006,7 @@ export default function DiscoverPage() {
           )}
 
           <button
+            type="button"
             onClick={() => navigate('/explore')}
             className="w-full my-3 sm:hidden lg:flex py-2.5 px-4 rounded-full border border-white/[0.08] hover:border-white/20 text-[12px] font-semibold items-center justify-between cursor-pointer transition"
           >
@@ -1003,6 +1037,7 @@ export default function DiscoverPage() {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => navigate('/host')}
                 className="w-full flex items-center justify-between text-[#d2ff38] text-[12px] font-bold cursor-pointer"
               >
@@ -1029,6 +1064,7 @@ export default function DiscoverPage() {
             className="relative w-full max-w-[440px] bg-[#12141a] border border-[#d2ff38]/30 rounded-[24px] p-5 shadow-2xl"
           >
             <button
+              type="button"
               onClick={() => setSurpriseModalOpen(false)}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-xs text-white flex items-center justify-center cursor-pointer"
             >
@@ -1039,7 +1075,7 @@ export default function DiscoverPage() {
               TONIGHT'S FATE PICKER
             </span>
             <h2 className="text-xl font-extrabold">
-              {isRolling ? 'Scanning live plots...' : 'We found your spot.'}
+              {isRolling ? 'Scanning Nairobi events...' : 'We found your spot.'}
             </h2>
             <p className="text-[11px] text-[#d2ff38] mt-0.5 mb-3.5">
               {isRolling ? 'Matching your vibe & budget...' : matchReason}
@@ -1047,13 +1083,14 @@ export default function DiscoverPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mb-3.5">
               {[
-                { key: 'fit', label: 'Best Fit' },
+                { key: 'fit', label: 'Music Pick' },
                 { key: 'closest', label: 'Closest' },
-                { key: 'budget', label: 'Under KSh 1K' },
+                { key: 'budget', label: 'Under KES 2K' },
                 { key: 'free', label: 'Free Entry' }
               ].map((item) => (
                 <button
                   key={item.key}
+                  type="button"
                   onClick={() => pickRandomSuitableEvent(item.key)}
                   className={`py-1.5 px-2 rounded-full text-[11px] font-semibold border transition cursor-pointer ${
                     surpriseCriteria === item.key
@@ -1075,28 +1112,23 @@ export default function DiscoverPage() {
               }`}
             >
               <div className="flex justify-between items-center">
-                <span className="bg-[#d2ff38] text-[#0b0c0e] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
-                  PLOT #{surpriseEvent.id} • VIBE MATCH
+                <span className="bg-[#d2ff38] text-[#0b0c0e] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
+                  EVENT #{surpriseEvent.id} • {surpriseEvent.category}
                 </span>
                 <span className="bg-black/75 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-white/15">
-                  {surpriseEvent.price === 0
+                  {getNumericPrice(surpriseEvent.price) === 0
                     ? 'Free Entry'
-                    : `${formatKsh(surpriseEvent.price)} cover`}
+                    : `${formatPriceLabel(surpriseEvent.price, surpriseEvent.currency)} cover`}
                 </span>
               </div>
 
               <div>
                 <div className="flex flex-wrap gap-1.5 mb-1.5">
-                  {surpriseEvent.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="bg-white/15 text-white text-[10px] px-2 py-0.5 rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                  <span className="bg-white/15 text-white text-[10px] px-2 py-0.5 rounded-full capitalize">
+                    {surpriseEvent.category}
+                  </span>
                   <span className="bg-[#d2ff38]/20 text-[#d2ff38] text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                    {surpriseEvent.spotsLeft} spots left
+                    {getDistanceKm(surpriseEvent.location)} km away
                   </span>
                 </div>
 
@@ -1104,21 +1136,21 @@ export default function DiscoverPage() {
                   {surpriseEvent.title}
                 </h3>
                 <p className="text-[11px] text-gray-300 mb-2 line-clamp-2">
-                  {surpriseEvent.subtitle}
+                  {surpriseEvent.description}
                 </p>
 
                 <div className="flex justify-between text-[11px] text-gray-300">
+                  <span>{surpriseEvent.location?.venue}</span>
                   <span>
-                    {surpriseEvent.location?.venue || surpriseEvent.venue} (
-                    {surpriseEvent.location?.distance || surpriseEvent.distance})
+                    {surpriseEvent.startTime} – {surpriseEvent.endTime}
                   </span>
-                  <span>{surpriseEvent.time}</span>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2">
               <button
+                type="button"
                 onClick={() => pickRandomSuitableEvent(surpriseCriteria)}
                 disabled={isRolling}
                 className="sm:flex-1 py-2.5 rounded-full bg-[#1a1d24] hover:bg-[#232730] border border-white/10 text-xs font-semibold text-white cursor-pointer transition"
@@ -1126,6 +1158,7 @@ export default function DiscoverPage() {
                 Spin Another Match
               </button>
               <button
+                type="button"
                 onClick={handleAcceptSurprise}
                 disabled={isRolling}
                 className="sm:flex-1 py-2.5 rounded-full bg-emerald-400 text-[#0b0c0e] text-xs font-extrabold cursor-pointer shadow-[0_6px_20px_rgba(34,197,94,0.35)] hover:brightness-110 transition"
