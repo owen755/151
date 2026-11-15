@@ -1,0 +1,176 @@
+{
+    "events": [
+        {
+            "id": 1,
+            "title": "Detty Dezemba",
+            "category": "music",
+            "description": "Live Afro house artists in Nairobi, with a special guest perfomance.",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/DettyDezembaFestPoster",
+            "startTime": "19:00",
+            "endTime": "Till Dawn",
+            "price": "4500",
+            "currency": "KES",
+            "location": {
+                "venue": "Uhuru Gardens",
+                "address": "Nairobi, Uhuru Gardens",
+                "lat": -1.32,
+                "long": 36.80
+            }
+        },
+        {
+            "id": 2,
+            "title": "Zawadi Band Perfomance",
+            "category": "music",
+            "description": "Come enjoy great music and great vibes. Order a drink and/or some food to top up your experience.",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/WhatsApp_Image_2026-11-15_at_12.52.00",
+            "startTime": "18:00",
+            "endTime": "22:00",
+            "price": "free",
+            "currency": "KES",
+            "location": {
+                "venue": "Sarova Stanley Hotel",
+                "address": "Kimathi Street",
+                "lat": -1.28,
+                "long": 36.82
+            }
+        },
+        {
+            "id": 3,
+            "title": "Rhythm & Identity",
+            "category": "music",
+            "description": "Rhythm & Identity is a high energy cultural experience that brings together music, fashion and perfomance art in one immersive showcase.",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/rafiki_alphabet",
+            "startTime": "15:00",
+            "endTime": "22:30",
+            "price": "1000",
+            "currency": "KES",
+            "location": {
+                "venue": "KICC Nairobi",
+                "address": "Nairobi, Uhuru Gardens",
+                "lat": -1.29,
+                "long": 36.82
+            }
+        },
+        {
+            "id": 4,
+            "title": "HKSAI Education Champions GALA Dinner",
+            "category": "charity",
+            "description": "Live Afro house artists in Nairobi, with a special guest perfomance.",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/hksai",
+            "startTime": "17:00",
+            "endTime": "22:00",
+            "price": "free",
+            "currency": "KES",
+            "location": {
+                "venue": "Heron Hotel",
+                "address": "Jakaya Kikwete Road, Nairobi",
+                "lat": -1.29,
+                "long": 36.81
+            }
+        },
+        {
+            "id": 5,
+            "title": "Research & Policy Series",
+            "category": "education",
+            "description": "Planetary AI - Data materiality in the Global South",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/BIEA",
+            "startTime": "16:00",
+            "endTime": "17:30",
+            "price": "free",
+            "currency": "KES",
+            "location": {
+                "venue": "The British Institute in Eastern Africa",
+                "address": "Laikipia Rd, Nairobi",
+                "lat": -1.27,
+                "long": 36.79
+            }
+        },
+        {
+            "id": 6,
+            "title": "AmapianoLand",
+            "category": "music",
+            "description": "AmapianoLand heads to Nairobi for a huge outdoor Amapiano & Afrobeats day festival.",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/amapianoland",
+            "startTime": "16:00",
+            "endTime": "01:00",
+            "price": "2000",
+            "currency": "KES",
+            "location": {
+                "venue": "MassHouse",
+                "address": "Ngong Racecourse,Nairobi",
+                "lat": -1.30,
+                "long": 36.74
+            }
+        },
+        {
+            "id": 7,
+            "title": "MindTech Conference",
+            "category": "tech",
+            "description": "Where technology meets wellbeing.",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/mindtech",
+            "startTime": "10:00",
+            "endTime": "18:00",
+            "price": "free",
+            "currency": "KES",
+            "location": {
+                "venue": "KICC Nairobi",
+                "address": "Nairobi",
+                "lat": -1.29,
+                "long": 36.82
+            }
+        },
+        {
+            "id": 8,
+            "title": "The Leadership Advantage",
+            "category": "education",
+            "description": "An executive leadership experience to sharpen their presence, amplify influence, inspire engagement, and unlock team potential.",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/leadershipadvantage",
+            "startTime": "09:00",
+            "endTime": "16:30",
+            "price": "23000",
+            "currency": "KES",
+            "location": {
+                "venue": "The Piano",
+                "address": "Brookside Dr, Nairobi",
+                "lat": -1.25,
+                "long": 36.79
+            }
+        },
+        {
+            "id": 9,
+            "title": "Pediatric Advanced Life Support Course",
+            "category": "wellness",
+            "description": "Join our in-person Pediatric Advanced Life Support Course to boost your skills and save kids' lives.",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/pals",
+            "startTime": "08:00",
+            "endTime": "15:00",
+            "price": "8500",
+            "currency": "KES",
+            "location": {
+                "venue": "The QuickFix Learning Hub - Hurlingham",
+                "address": "Argwings Kodhek Rd, Nairobi",
+                "lat": -1.29,
+                "long": 36.79
+            }
+        },
+        {
+            "id": 10,
+            "title": "Nairobi Social and Political Walk",
+            "category": "wellness",
+            "description": "The interactive storytelling walk is meant to have the flow and information-heavy experience of a documemntary",
+            "image": "https://res.cloudinary.com/b9tb2cpo/image/upload/f_auto,q_auto/socialwalk",
+            "startTime": "10:00",
+            "endTime": "12:30",
+            "price": "4000",
+            "currency": "KES",
+            "location": {
+                "venue": "City Square Post Office",
+                "address": "Haile Selassie Ave, Nairobi",
+                "lat": -1.29,
+                "long": 36.82
+            }
+        }
+    ],
+    "saved": [],
+    "skipped": []
+}
