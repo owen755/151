@@ -5,15 +5,24 @@ import TopBar from './components/TopBar'
 import MapPanel from './components/MapPanel'
 import { API_URL } from './api'
 import { normalizeEvent } from './normalizeEvent'
+import {
+  DISTANCE_OPTIONS,
+  PRICE_OPTIONS,
+  PRICE_LABELS,
+  nextOption,
+  filterEvents,
+} from './filters'
 
 export default function ExploreMap() {
-  const [search, setSearch] = useState('')
   const [events, setEvents] = useState([])
   const [status, setStatus] = useState('loading') // loading | error | ready
   const [selectedId, setSelectedId] = useState(null)
 
-  // Until the user clicks a card, the first event is the selected one
-  const activeId = selectedId ?? events[0]?.id
+  const [search, setSearch] = useState('')
+  const [maxMiles, setMaxMiles] = useState(5)
+  const [category, setCategory] = useState('all')
+  const [price, setPrice] = useState('any')
+  const [listView, setListView] = useState(false)
 
   useEffect(() => {
     fetch(`${API_URL}/events`)
@@ -27,6 +36,20 @@ export default function ExploreMap() {
       })
       .catch(() => setStatus('error'))
   }, [])
+
+  // The categories come from the data: music, education, charity...
+  const categories = ['all', ...new Set(events.map((e) => e.label.toLowerCase()))]
+  const categoryLabel =
+    category === 'all'
+      ? 'All vibes'
+      : category.charAt(0).toUpperCase() + category.slice(1)
+
+  const shown = filterEvents(events, { search, maxMiles, category, price })
+
+  // If the selected night was filtered out, the first one on the list is selected
+  const activeId = shown.some((e) => e.id === selectedId)
+    ? selectedId
+    : shown[0]?.id
 
   return (
     <div className="min-h-screen">
@@ -44,9 +67,21 @@ export default function ExploreMap() {
 
         <div className="mt-6 flex items-center gap-3">
           <FilterChip label="All dates" active />
-          <FilterChip label="Within 5 mi" />
-          <FilterChip label="All vibes" />
-          <FilterChip label="Any price" />
+          <FilterChip
+            label={`Within ${maxMiles} mi`}
+            active={maxMiles !== 5}
+            onClick={() => setMaxMiles(nextOption(DISTANCE_OPTIONS, maxMiles))}
+          />
+          <FilterChip
+            label={categoryLabel}
+            active={category !== 'all'}
+            onClick={() => setCategory(nextOption(categories, category))}
+          />
+          <FilterChip
+            label={PRICE_LABELS[price]}
+            active={price !== 'any'}
+            onClick={() => setPrice(nextOption(PRICE_OPTIONS, price))}
+          />
           <input
             type="text"
             value={search}
@@ -55,19 +90,29 @@ export default function ExploreMap() {
             className="h-[38px] w-64 rounded-full border border-[#2a2c2f] bg-[#1b1c1f] px-4 text-[13px] text-white placeholder:text-neutral-500 focus:border-[#d2ff38]/40 focus:outline-none"
           />
           <div className="ml-auto">
-            <FilterChip label="List view" />
+            <FilterChip
+              label={listView ? 'Map view' : 'List view'}
+              active={listView}
+              onClick={() => setListView(!listView)}
+            />
           </div>
         </div>
 
-        <div className="mt-8 grid h-[560px] grid-cols-[345px_1fr] gap-6">
+        <div
+          className={
+            listView
+              ? 'mt-8'
+              : 'mt-8 grid h-[560px] grid-cols-[345px_1fr] gap-6'
+          }
+        >
           <section className="flex min-h-0 flex-col">
             <h2 className="text-lg font-semibold text-white">
               {status === 'ready'
-                ? `${events.length} good nights nearby`
+                ? `${shown.length} good ${shown.length === 1 ? 'night' : 'nights'} nearby`
                 : 'Finding good nights...'}
             </h2>
             <p className="mt-1 text-xs text-neutral-500">
-              Nairobi, Kenya · Within 5 miles
+              Nairobi, Kenya · Within {maxMiles} miles
             </p>
 
             {status === 'error' && (
@@ -76,8 +121,20 @@ export default function ExploreMap() {
               </p>
             )}
 
-            <div className="mt-4 flex flex-col gap-3 overflow-y-auto pr-1">
-              {events.map((event) => (
+            {status === 'ready' && shown.length === 0 && (
+              <p className="mt-4 text-xs text-neutral-400">
+                No nights match your filters.
+              </p>
+            )}
+
+            <div
+              className={
+                listView
+                  ? 'mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3'
+                  : 'mt-4 flex flex-col gap-3 overflow-y-auto pr-1'
+              }
+            >
+              {shown.map((event) => (
                 <NightCard
                   key={event.id}
                   event={event}
@@ -93,7 +150,9 @@ export default function ExploreMap() {
             </div>
           </section>
 
-          <MapPanel events={events} selectedId={activeId} onSelect={setSelectedId} />
+          {!listView && (
+            <MapPanel events={shown} selectedId={activeId} onSelect={setSelectedId} />
+          )}
         </div>
 
         <footer className="mt-10 flex items-center justify-between border-t border-[#2a2c2f] pt-4 text-[10px] uppercase tracking-wider text-neutral-500">

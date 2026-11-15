@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css'
 import '../map.css'
 import { YOU } from '../distance'
 
-const TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+const TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
 
 // A pill with the price, like $20 / $15 / Free in the design
 function priceIcon(label, selected) {
@@ -134,7 +134,7 @@ export default function MapPanel({ events, selectedId, onSelect }) {
       </div>
 
       <p className="mt-2 text-[10px] text-neutral-500">
-        Map © OpenStreetMap contributors © CARTO · Locations approximate
+        Map © OpenStreetMap contributors · Locations approximate
       </p>
     </div>
   )
