@@ -95,6 +95,10 @@ export default function SavedNightsPage() {
           />
         ))}
       </div>
+
+       <p className="mt-10 text-xs text-[#8b909a]">
+        Real events. Local energy. Always a good story.
+      </p>
     </div>
   );
 }
