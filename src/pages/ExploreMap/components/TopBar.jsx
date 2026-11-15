@@ -1,6 +1,6 @@
 export default function TopBar() {
   return (
-    <div className="flex h-[60px] items-center justify-between border-b border-[#2a2c2f] px-11">
+    <div className="flex h-[60px] items-center justify-between border-b border-[#2a2c2f] px-4 sm:px-11">
       <button
         type="button"
         className="flex cursor-pointer items-center gap-2 text-[13px] text-white"

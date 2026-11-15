@@ -37,13 +37,13 @@ function FlyToSelected({ event }) {
 const roundButton =
   'flex h-9 w-9 cursor-pointer items-center justify-center text-white hover:bg-white/10'
 
-export default function MapPanel({ events, selectedId, onSelect }) {
+export default function MapPanel({ events, selectedId, onSelect, areaActive, onSearchArea, className = 'h-full' }) {
   const [map, setMap] = useState(null)
   const navigate = useNavigate()
   const selected = events.find((e) => e.id === selectedId)
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className={`flex min-h-0 flex-col ${className}`}>
       <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-[#2a2c2f]">
         <MapContainer
           ref={setMap}
@@ -74,7 +74,12 @@ export default function MapPanel({ events, selectedId, onSelect }) {
         {/* Search this area (wired up in the filters commit) */}
         <button
           type="button"
-          className="absolute left-1/2 top-4 z-[1000] -translate-x-1/2 cursor-pointer rounded-full border border-[#2a2c2f] bg-[#131519] px-4 py-2 text-xs text-white"
+          onClick={() => onSearchArea(areaActive ? null : map?.getBounds() ?? null)}
+          className={`absolute left-1/2 top-4 z-[1000] -translate-x-1/2 cursor-pointer rounded-full border px-4 py-2 text-xs ${
+            areaActive
+              ? 'border-[#d2ff38]/40 bg-[#1e2418] text-[#d2ff38]'
+              : 'border-[#2a2c2f] bg-[#131519] text-white'
+          }`}
         >
           Search this area
         </button>

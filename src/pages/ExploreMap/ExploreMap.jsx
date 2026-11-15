@@ -23,6 +23,7 @@ export default function ExploreMap() {
   const [category, setCategory] = useState('all')
   const [price, setPrice] = useState('any')
   const [listView, setListView] = useState(false)
+  const [areaBounds, setAreaBounds] = useState(null)
 
   useEffect(() => {
     fetch(`${API_URL}/events`)
@@ -44,7 +45,7 @@ export default function ExploreMap() {
       ? 'All vibes'
       : category.charAt(0).toUpperCase() + category.slice(1)
 
-  const shown = filterEvents(events, { search, maxMiles, category, price })
+  const shown = filterEvents(events, { search, maxMiles, category, price, bounds: areaBounds })
 
   // If the selected night was filtered out, the first one on the list is selected
   const activeId = shown.some((e) => e.id === selectedId)
@@ -55,7 +56,7 @@ export default function ExploreMap() {
     <div className="min-h-screen">
       <TopBar />
 
-      <div className="px-11 py-8">
+      <div className="px-4 py-6 sm:px-11 sm:py-8">
         <header>
           <h1 className="text-[32px] font-bold leading-tight tracking-tight text-white">
             Your city. After dark.
@@ -65,7 +66,7 @@ export default function ExploreMap() {
           </p>
         </header>
 
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <FilterChip label="All dates" active />
           <FilterChip
             label={`Within ${maxMiles} mi`}
@@ -87,7 +88,7 @@ export default function ExploreMap() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search DJs or venues"
-            className="h-[38px] w-64 rounded-full border border-[#2a2c2f] bg-[#1b1c1f] px-4 text-[13px] text-white placeholder:text-neutral-500 focus:border-[#d2ff38]/40 focus:outline-none"
+            className="h-[38px] w-full sm:w-64 rounded-full border border-[#2a2c2f] bg-[#1b1c1f] px-4 text-[13px] text-white placeholder:text-neutral-500 focus:border-[#d2ff38]/40 focus:outline-none"
           />
           <div className="ml-auto">
             <FilterChip
@@ -102,7 +103,7 @@ export default function ExploreMap() {
           className={
             listView
               ? 'mt-8'
-              : 'mt-8 grid h-[560px] grid-cols-[345px_1fr] gap-6'
+              : 'mt-8 grid gap-6 lg:h-[560px] lg:grid-cols-[345px_1fr]'
           }
         >
           <section className="flex min-h-0 flex-col">
@@ -131,7 +132,7 @@ export default function ExploreMap() {
               className={
                 listView
                   ? 'mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3'
-                  : 'mt-4 flex flex-col gap-3 overflow-y-auto pr-1'
+                  : 'mt-4 flex flex-col gap-3 pr-1 lg:overflow-y-auto'
               }
             >
               {shown.map((event) => (
@@ -151,11 +152,18 @@ export default function ExploreMap() {
           </section>
 
           {!listView && (
-            <MapPanel events={shown} selectedId={activeId} onSelect={setSelectedId} />
+            <MapPanel
+              events={shown}
+              selectedId={activeId}
+              onSelect={setSelectedId}
+              areaActive={Boolean(areaBounds)}
+              onSearchArea={setAreaBounds}
+              className="order-first h-[420px] lg:order-none lg:h-full"
+            />
           )}
         </div>
 
-        <footer className="mt-10 flex items-center justify-between border-t border-[#2a2c2f] pt-4 text-[10px] uppercase tracking-wider text-neutral-500">
+        <footer className="mt-10 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-t border-[#2a2c2f] pt-4 text-[10px] uppercase tracking-wider text-neutral-500">
           <span>Good people. Great nights.</span>
           <span className="normal-case tracking-normal">
             Discover spontaneously. Party responsibly. 21+
