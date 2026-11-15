@@ -79,10 +79,19 @@ export default function SavedNightsPage() {
       {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
       {loading && <p className="mt-6 text-[#8b909a]">Loading…</p>}
 
-      {!loading && !error && nights.length === 0 && (
-        <p className="mt-6 text-[#8b909a]">
-          No saved nights yet. Go find your kind of night.
-        </p>
+            {!loading && !error && nights.length === 0 && (
+        <div className="mt-10 rounded-2xl border border-white/10 bg-[#131519] p-8 text-center">
+          <h2 className="text-xl font-bold">No saved nights yet</h2>
+          <p className="mt-2 text-sm text-[#8b909a]">
+            Tap the heart on a night you like and it will show up here.
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="mt-5 cursor-pointer rounded-full bg-[#d2ff38] px-5 py-2.5 text-sm font-bold text-[#0b0c0e] transition hover:brightness-110 active:scale-95"
+          >
+            Discover nights
+          </button>
+        </div>
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
