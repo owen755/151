@@ -28,7 +28,7 @@ export default function ExploreMap() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search DJs or venues"
-          className="h-[38px] w-64 rounded-full border border-[#2a2c2f] bg-[#1b1c1f] px-4 text-[13px] text-white placeholder:text-neutral-500 focus:border-[#c8f56a]/40 focus:outline-none"
+          className="h-[38px] w-64 rounded-full border border-[#2a2c2f] bg-[#1b1c1f] px-4 text-[13px] text-white placeholder:text-neutral-500 focus:border-[#d2ff38]/40 focus:outline-none"
         />
         <div className="ml-auto">
           <FilterChip label="List view" />

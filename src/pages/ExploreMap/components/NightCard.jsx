@@ -7,7 +7,7 @@ function formatPrice(price) {
 
 export default function NightCard({ event, selected = false, onSelect }) {
   const borderStyle = selected
-    ? 'border-[#c8f56a]'
+    ? 'border-[#d2ff38]'
     : 'border-[#2a2c2f] hover:border-neutral-500'
 
   return (
@@ -22,7 +22,7 @@ export default function NightCard({ event, selected = false, onSelect }) {
       />
 
       <div className="flex flex-col justify-center">
-        <p className="text-[10px] uppercase tracking-wide text-[#c8f56a]">
+        <p className="text-[10px] uppercase tracking-wide text-[#d2ff38]">
           {event.vibe} · {event.location.venue}
         </p>
         <h3 className="mt-1 text-lg font-semibold text-white">{event.title}</h3>
@@ -33,7 +33,7 @@ export default function NightCard({ event, selected = false, onSelect }) {
           <p className="text-xs text-white">{formatPrice(event.price)}</p>
           <CapacityBadge spotsLeft={event.spotsLeft} capacity={event.capacity} />
         </div>
-        <p className="mt-2 text-xs text-[#c8f56a]">View night →</p>
+        <p className="mt-2 text-xs text-[#d2ff38]">View night →</p>
       </div>
     </div>
   )
