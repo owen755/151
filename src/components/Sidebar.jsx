@@ -13,13 +13,15 @@ export function useLocationFilter() {
 
 export const DEFAULT_LOCATIONS = [
   'All Nairobi Zones',
-  'Westlands, Nairobi',
-  'Kilimani, Nairobi',
-  'Karen, Nairobi',
-  'Lavington, Nairobi',
-  'Kileleshwa, Nairobi',
-  'Ngong Road, Nairobi',
-  'CBD, Nairobi'
+  'Uhuru Gardens',
+  'KICC Nairobi',
+  'Kimathi Street',
+  'Ngong Racecourse',
+  'Argwings Kodhek Rd',
+  'Brookside Dr',
+  'Laikipia Rd',
+  'Jakaya Kikwete Road',
+  'Haile Selassie Ave'
 ];
 
 export default function Sidebar({
@@ -36,9 +38,12 @@ export default function Sidebar({
   const locationDropdownRef = useRef(null);
 
   const activeLocation = propLocation !== undefined ? propLocation : internalLocation;
+
   const handleLocationChange = (loc) => {
     setInternalLocation(loc);
-    if (onSelectLocation) onSelectLocation(loc);
+    if (onSelectLocation) {
+      onSelectLocation(loc);
+    }
   };
 
   useEffect(() => {
@@ -86,6 +91,7 @@ export default function Sidebar({
               return (
                 <button
                   key={item.path}
+                  type="button"
                   onClick={() => navigate(item.path)}
                   className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] transition cursor-pointer ${
                     isActive
@@ -116,6 +122,7 @@ export default function Sidebar({
                 Bring your people together. We'll bring the good vibes.
               </p>
               <button
+                type="button"
                 onClick={() => navigate('/host')}
                 className="w-full flex items-center justify-between text-[#d2ff38] text-[12px] font-semibold cursor-pointer hover:underline"
               >
@@ -127,6 +134,7 @@ export default function Sidebar({
 
           <div className="border-t border-white/[0.08] pt-4 flex flex-col gap-3">
             <button
+              type="button"
               onClick={() => navigate('/help')}
               className="text-[11px] text-[#8b909a] text-left hover:text-white cursor-pointer"
             >
@@ -148,9 +156,9 @@ export default function Sidebar({
           </div>
         </aside>
 
-        {/* ================= MAIN COLUMN (Topbar + Page Content + Footer) ================= */}
+        {/* ================= MAIN COLUMN (Shared Topbar + Page Content + Shared Footer) ================= */}
         <div className="flex-1 flex flex-col px-4 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6 min-w-0 min-h-screen">
-          {/* SHARED TOP HEADER BAR (Location Dropdown + Spontaneous Tagline + Alerts) */}
+          {/* SHARED TOP HEADER BAR */}
           <header className="flex items-center justify-between pb-3.5 border-b border-white/[0.08]">
             <div className="flex items-center gap-3" ref={locationDropdownRef}>
               <span
@@ -177,9 +185,9 @@ export default function Sidebar({
                 </button>
 
                 {locationMenuOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-56 bg-[#14171d] border border-[#d2ff38]/30 rounded-2xl p-2 shadow-2xl z-50 flex flex-col gap-0.5">
+                  <div className="absolute top-full left-0 mt-2 w-60 bg-[#14171d] border border-[#d2ff38]/30 rounded-2xl p-2 shadow-2xl z-50 flex flex-col gap-0.5 max-h-72 overflow-y-auto">
                     <span className="text-[10px] font-bold tracking-wider text-[#8b909a] px-2.5 py-1">
-                      SWITCH TONIGHT'S ZONE
+                      SWITCH NAIROBI LOCATION
                     </span>
                     {locations.map((loc) => (
                       <button
@@ -195,7 +203,7 @@ export default function Sidebar({
                             : 'text-white hover:bg-white/5'
                         }`}
                       >
-                        <span>{loc}</span>
+                        <span className="truncate pr-2">{loc}</span>
                         {activeLocation === loc && (
                           <span className="text-[#d2ff38] text-[10px]">●</span>
                         )}
@@ -250,7 +258,7 @@ export default function Sidebar({
           {/* PAGE CONTENT */}
           <div className="flex-1 flex flex-col">{children}</div>
 
-          {/* SHARED FOOTER (Appears on Every Page) */}
+          {/* SHARED FOOTER */}
           <footer className="mt-8 pt-3.5 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-[#8b909a]">
             <span>GOOD PEOPLE. GREAT NIGHTS.</span>
             <span>Discover spontaneously. Party responsibly. 21+</span>
