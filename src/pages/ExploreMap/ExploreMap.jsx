@@ -6,6 +6,7 @@ import { API_URL } from './api'
 export default function ExploreMap() {
   const [search, setSearch] = useState('')
   const [events, setEvents] = useState([])
+  const [status, setStatus] = useState('loading') // loading | error | ready
   const [selectedId, setSelectedId] = useState(null)
 
   // Until the user clicks a card, the first event is the selected one
@@ -13,8 +14,15 @@ export default function ExploreMap() {
 
   useEffect(() => {
     fetch(`${API_URL}/events`)
-      .then((res) => res.json())
-      .then((data) => setEvents(data))
+      .then((res) => {
+        if (!res.ok) throw new Error('Bad response')
+        return res.json()
+      })
+      .then((data) => {
+        setEvents(data)
+        setStatus('ready')
+      })
+      .catch(() => setStatus('error'))
   }, [])
 
   return (
@@ -48,11 +56,19 @@ export default function ExploreMap() {
       <div className="mt-8 grid grid-cols-[345px_1fr] gap-6">
         <section>
           <h2 className="text-lg font-semibold text-white">
-            {events.length} good nights nearby
+            {status === 'ready'
+              ? `${events.length} good nights nearby`
+              : 'Finding good nights...'}
           </h2>
           <p className="mt-1 text-xs text-neutral-500">
             Nairobi, Kenya · Within 5 miles
           </p>
+
+          {status === 'error' && (
+            <p className="mt-4 rounded-2xl border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-300">
+              Could not load nights. Is the data server running?
+            </p>
+          )}
 
           <div className="mt-4 flex flex-col gap-3">
             {events.map((event) => (
