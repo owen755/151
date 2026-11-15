@@ -1,24 +1,48 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SavedNightCard from './SavedNightCard';
 
-const INITIAL_NIGHTS = [
-  { id: 1, title: 'Above the city', subtitle: 'House · Rooftop', venue: 'Westlands Rooftop', distance: '1.2 km', distanceKm: 1.2, price: 2000, image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000&auto=format&fit=crop&q=80' },
-  { id: 2, title: 'Basement frequencies', subtitle: 'Techno · Late night', venue: 'The Basement', distance: '2.4 km', distanceKm: 2.4, price: 1000, image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1000&auto=format&fit=crop&q=80' },
-  { id: 3, title: 'Disco, not dead.', subtitle: 'Disco · Throwback', venue: 'Kilimani Hall', distance: '0.8 km', distanceKm: 0.8, price: 0, image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1000&auto=format&fit=crop&q=80' },
-  { id: 4, title: 'Sunday on the roof', subtitle: 'House · Sunset', venue: 'Westlands Rooftop', distance: '1.2 km', distanceKm: 1.2, price: 1500, image: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1000&auto=format&fit=crop&q=80' },
-];
-    
+const API = 'http://localhost:3001';
+
 export default function SavedNightsPage() {
-    const [nights, setNights] = useState(INITIAL_NIGHTS);
+  const [nights, setNights] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-    const handleUnsave = (id) =>
-    setNights((prev) => prev.filter((n) => n.id !== id));
+  useEffect(() => {
+    fetch(`${API}/saved`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Could not load saved nights');
+        return res.json();
+      })
+      .then(setNights)
+      .catch(() => setError('Could not load saved nights. Is the server running?'))
+      .finally(() => setLoading(false));
+  }, []);
 
-    return (
-        <div className="min-h-screen bg-[#0b0c0e] p-6 text-[#f56f8]">
-            <h1>Your next good nights</h1>
-            <p className="mt-1 text-[#8b909a]">All the nights you loved. Now make a plan.</p>
+  const handleUnsave = async (id) => {
+    try {
+      await fetch(`${API}/saved/${id}`, { method: 'DELETE' });
+      setNights((prev) => prev.filter((n) => n.id !== id));
+    } catch {
+      setError('Could not remove that night. Try again.');
+    }
+  };
 
+  return (
+    <div className="min-h-screen bg-[#0b0c0e] p-6 text-[#f5f6f8]">
+      <h1 className="text-3xl font-bold">Your next good nights</h1>
+      <p className="mt-1 text-[#8b909a]">
+        All the nights you loved. Now make a plan.
+      </p>
+
+      {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
+      {loading && <p className="mt-6 text-[#8b909a]">Loading…</p>}
+
+      {!loading && !error && nights.length === 0 && (
+        <p className="mt-6 text-[#8b909a]">
+          No saved nights yet. Go find your kind of night.
+        </p>
+      )}
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {nights.map((night) => (
@@ -30,6 +54,6 @@ export default function SavedNightsPage() {
           />
         ))}
       </div>
-        </div>
-    );
+    </div>
+  );
 }
