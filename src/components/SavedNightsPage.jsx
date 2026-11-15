@@ -52,6 +52,12 @@ export default function SavedNightsPage() {
         All the nights you loved. Now make a plan.
       </p>
 
+            {nights.length > 0 && (
+        <p className="mt-4 text-xs text-[#8b909a]">
+          {nights.length} {nights.length === 1 ? 'night' : 'nights'} saved
+        </p>
+      )}
+
       {nights.length > 0 && (
         <div className="mt-6 flex flex-wrap gap-2">
           {categories.map((c) => (
