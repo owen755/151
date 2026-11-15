@@ -16,10 +16,7 @@ export default function Sidebar({ children }) {
 
   const sidebarElement = (
     <aside className="hidden lg:flex w-[240px] xl:w-[260px] bg-[#0e1013] border-r border-white/[0.08] px-5 py-6 flex-col shrink-0 sticky top-0 h-screen select-none">
-      <div
-        onClick={() => navigate('/')}
-        className="px-1 cursor-pointer"
-      >
+      <div onClick={() => navigate('/')} className="px-1 cursor-pointer">
         <div className="text-[28px] font-extrabold tracking-tight leading-none text-[#f5f6f8]">
           aftr<span className="text-[#d2ff38]">.</span>
         </div>
@@ -97,7 +94,7 @@ export default function Sidebar({ children }) {
     </aside>
   );
 
-  // If a teammate wraps their page with <Sidebar>{children}</Sidebar>, render the full flex shell
+  // Supports wrapping a page: <Sidebar><ExploreMapPage /></Sidebar>
   if (children) {
     return (
       <div className="min-h-screen w-full bg-[#0b0c0e] text-[#f5f6f8] flex overflow-x-hidden">
@@ -107,6 +104,5 @@ export default function Sidebar({ children }) {
     );
   }
 
-  // Otherwise render the <aside> directly
   return sidebarElement;
 }
