@@ -424,81 +424,13 @@ export default function DiscoverPage() {
   const isLikingGreen = dragOffset.x > 25 || animState === 'right';
   const stampOpacity = animState ? 1 : Math.min(Math.abs(dragOffset.x) / 85, 1);
 
-  return (
+      return (
     <div className="min-h-screen w-full bg-[#0b0c0e] text-[#f5f6f8] flex overflow-x-hidden">
-      {/* ================= LEFT SIDEBAR (Desktop lg+) ================= */}
-      <aside className="hidden lg:flex w-[240px] xl:w-[260px] bg-[#0e1013] border-r border-white/[0.08] px-5 py-6 flex-col shrink-0 sticky top-0 h-screen">
-        <div className="px-1">
-          <div className="text-[28px] font-extrabold tracking-tight leading-none">
-            aftr<span className="text-[#d2ff38]">.</span>
-          </div>
-          <p className="text-[9px] tracking-[1.4px] text-[#8b909a] mt-1.5">
-            GO OUT. FIND YOUR PEOPLE.
-          </p>
-        </div>
+      {/* Shared Sidebar Component */}
+      <Sidebar />
 
-        <nav className="mt-8 flex flex-col gap-1.5">
-          <button className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-semibold bg-[#1e2418] text-[#d2ff38] cursor-pointer">
-            <span>Discover</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/saved-nights')}
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-[#8b909a] hover:text-white hover:bg-white/[0.04] transition cursor-pointer"
-          >
-            <span>Saved nights</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/my-tickets')}
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-[#8b909a] hover:text-white hover:bg-white/[0.04] transition cursor-pointer"
-          >
-            <span>My tickets</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/explore')}
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-[#8b909a] hover:text-white hover:bg-white/[0.04] transition cursor-pointer"
-          >
-            <span>Explore map</span>
-          </button>
-        </nav>
-
-        <div className="mt-auto mb-5 bg-gradient-to-br from-[#1b2116] to-[#141812] border border-[#d2ff38]/20 rounded-2xl p-4">
-          <h4 className="text-[14px] font-bold mb-1">Make it a night.</h4>
-          <p className="text-[11px] text-[#8b909a] leading-snug mb-3">
-            Bring your people together. We'll bring the good vibes.
-          </p>
-          <button
-            onClick={() => navigate('/host')}
-            className="w-full flex items-center justify-between text-[#d2ff38] text-[12px] font-semibold cursor-pointer hover:underline"
-          >
-            <span>Host a party</span>
-            <span>→</span>
-          </button>
-        </div>
-
-        <div className="border-t border-white/[0.08] pt-4 flex flex-col gap-3">
-          <button
-            onClick={() => navigate('/help')}
-            className="text-[11px] text-[#8b909a] text-left hover:text-white cursor-pointer"
-          >
-            Help & feedback
-          </button>
-          <div className="flex items-center gap-2.5">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120"
-              alt="Jamie Miller"
-              className="w-8 h-8 rounded-full object-cover"
-            />
-            <div>
-              <strong className="block text-[12px] font-semibold leading-tight">Jamie Miller</strong>
-              <span className="text-[10px] text-[#8b909a]">Your next story awaits</span>
-            </div>
-          </div>
-        </div>
-      </aside>
-
+      {/* ================= MAIN WORKSPACE ================= */}
+      <div className="flex-1 flex flex-col px-4 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6 min-w-0"></div>
       {/* ================= MAIN WORKSPACE ================= */}
       <div className="flex-1 flex flex-col px-4 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6 min-w-0">
         {/* TOP HEADER BAR */}
