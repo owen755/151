@@ -1,17 +1,19 @@
-const formatPrice = (price) => 
-    Number (price) === 0 ? 'Free' : `$${Number(price).toLocaleString()}`;
+const formatPrice = (price, currency) =>
+  String(price).toLowerCase() === 'free' || Number(price) === 0
+    ? 'Free'
+    : `${Number(price).toLocaleString()} ${currency || 'KES'}`;
 
-export default function SavedNightCard({ night, onUse, onView }) {
-    return (
-        <article classname="overflow-hidden rounded-2xl border border-white/10 bg-[#131519]">
-            <div className="relative">
-               <img
+export default function SavedNightCard({ night, onUnsave, onView }) {
+  return (
+    <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#131519]">
+      <div className="relative">
+        <img
           src={night.image}
           alt={night.title}
           className="h-40 w-full object-cover"
         />
         <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white">
-          {formatPrice(night.price)}
+          {formatPrice(night.price, night.currency)}
         </span>
         <button
           onClick={() => onUnsave(night.id)}
@@ -26,11 +28,11 @@ export default function SavedNightCard({ night, onUse, onView }) {
 
       <div className="p-4">
         <p className="text-[11px] font-bold uppercase tracking-widest text-[#d2ff38]">
-          {night.subtitle}
+          {night.category}
         </p>
         <h3 className="mt-1 text-lg font-bold text-white">{night.title}</h3>
         <p className="mt-1 text-xs text-[#8b909a]">
-          {night.venue} · {night.distance}
+          {night.startTime} – {night.endTime} · {night.location?.venue}
         </p>
         <button
           onClick={() => onView(night.id)}
@@ -38,8 +40,7 @@ export default function SavedNightCard({ night, onUse, onView }) {
         >
           View night
         </button>
-      
-            </div>
-        </article>
-    );
+      </div>
+    </article>
+  );
 }
