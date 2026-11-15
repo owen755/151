@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from './Sidebar';
 
 const PRESET_FLYERS = [
   {
@@ -123,66 +124,13 @@ export default function HostPage() {
   return (
     <div className="min-h-screen w-full bg-[#0b0c0e] text-[#f5f6f8] flex overflow-x-hidden">
       {/* ================= LEFT SIDEBAR (Desktop lg+) ================= */}
-      <aside className="hidden lg:flex w-[240px] xl:w-[260px] bg-[#0e1013] border-r border-white/[0.08] px-5 py-6 flex-col shrink-0 sticky top-0 h-screen">
-        <div className="px-1">
-          <div className="text-[28px] font-extrabold tracking-tight leading-none">
-            aftr<span className="text-[#d2ff38]">.</span>
-          </div>
-          <p className="text-[9px] tracking-[1.4px] text-[#8b909a] mt-1.5">
-            GO OUT. FIND YOUR PEOPLE.
-          </p>
-        </div>
+     
+      {/* Shared Sidebar Component */}
+      
 
-        <nav className="mt-8 flex flex-col gap-1.5">
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-[#8b909a] hover:text-white hover:bg-white/[0.04] transition cursor-pointer"
-          >
-            <span>Discover</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/saved-nights')}
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-[#8b909a] hover:text-white hover:bg-white/[0.04] transition cursor-pointer"
-          >
-            <span>Saved nights</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/my-tickets')}
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-[#8b909a] hover:text-white hover:bg-white/[0.04] transition cursor-pointer"
-          >
-            <span>My tickets</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/explore')}
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-[#8b909a] hover:text-white hover:bg-white/[0.04] transition cursor-pointer"
-          >
-            <span>Explore map</span>
-          </button>
-        </nav>
-
-        <div className="mt-auto mb-5 bg-[#1e2418] border border-[#d2ff38]/40 rounded-2xl p-4">
-          <span className="inline-block text-[9px] font-extrabold tracking-wider text-[#d2ff38] mb-1">
-            ACTIVE MODE
-          </span>
-          <h4 className="text-[14px] font-bold mb-1 text-white">Host Creator Portal</h4>
-          <p className="text-[11px] text-[#8b909a] leading-snug">
-            Launch your event into tonight's live swipe deck across Nairobi.
-          </p>
-        </div>
-
-        <div className="border-t border-white/[0.08] pt-4 flex flex-col gap-3">
-          <button
-            onClick={() => navigate('/')}
-            className="text-[11px] text-[#8b909a] text-left hover:text-white cursor-pointer"
-          >
-            ← Back to Discover
-          </button>
-        </div>
-      </aside>
-
+      {/* ================= MAIN WORKSPACE ================= */}
+      <div className="flex-1 flex flex-col px-4 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6 min-w-0"></div>
+      <Sidebar />
       {/* ================= MAIN WORKSPACE ================= */}
       <div className="flex-1 flex flex-col px-4 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6 min-w-0">
         {/* TOP BAR */}
