@@ -32,3 +32,14 @@
   border: 2px solid #fff;
   box-shadow: 0 0 0 5px rgba(210, 255, 56, 0.25);
 }
+
+/* OpenStreetMap tiles are light, so we turn them dark */
+.leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.7);
+}
+
+/* Thin dark scrollbar for the list of nights */
+.dark-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2c2f transparent;
+}
