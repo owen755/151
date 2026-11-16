@@ -1,10 +1,8 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import DiscoverPage from './components/DiscoverPage';
 import HostPage from './components/HostPage';
 import ExploreMap from './pages/ExploreMap/ExploreMap';
-import { useLocation } from 'react-router-dom';
-
 function Custom404() {
   const location = useLocation();
   const navigate = useNavigate();
