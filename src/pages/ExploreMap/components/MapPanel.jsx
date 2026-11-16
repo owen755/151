@@ -37,7 +37,7 @@ function FlyToSelected({ event }) {
 const roundButton =
   'flex h-9 w-9 cursor-pointer items-center justify-center text-white hover:bg-white/10'
 
-export default function MapPanel({ events, selectedId, onSelect, areaActive, onSearchArea, className = 'h-full' }) {
+export default function MapPanel({ events, selectedId, onSelect, flyId, areaActive, onSearchArea, className = 'h-full' }) {
   const [map, setMap] = useState(null)
   const navigate = useNavigate()
   const selected = events.find((e) => e.id === selectedId)
@@ -48,7 +48,7 @@ export default function MapPanel({ events, selectedId, onSelect, areaActive, onS
         <MapContainer
           ref={setMap}
           center={[YOU.lat, YOU.lng]}
-          zoom={12}
+          zoom={13}
           zoomControl={false}
           attributionControl={false}
           className="h-full w-full"
@@ -68,7 +68,7 @@ export default function MapPanel({ events, selectedId, onSelect, areaActive, onS
               />
             ))}
 
-          <FlyToSelected event={selected} />
+          <FlyToSelected event={events.find((e) => e.id === flyId)} />
         </MapContainer>
 
         {/* Search this area (wired up in the filters commit) */}

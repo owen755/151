@@ -68,3 +68,14 @@ describe('nextOption', () => {
     expect(nextOption(['any', 'free', 'paid'], 'paid')).toBe('any')
   })
 })
+
+describe('filterEvents by zone', () => {
+  test('keeps only nights whose venue or address matches the picked zone', () => {
+    const result = filterEvents(events, { ...noFilters, zone: 'KICC Nairobi' })
+    expect(titles(result)).toEqual(['MindTech Conference'])
+  })
+
+  test('"All Nairobi Zones" keeps every night', () => {
+    expect(filterEvents(events, { ...noFilters, zone: 'All Nairobi Zones' })).toHaveLength(4)
+  })
+})

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import FilterChip from './components/FilterChip'
 import NightCard from './components/NightCard'
-import TopBar from './components/TopBar'
+import Sidebar, { DEFAULT_LOCATIONS } from '../../components/Sidebar'
 import MapPanel from './components/MapPanel'
 import { API_URL } from './api'
 import { normalizeEvent } from './normalizeEvent'
@@ -24,6 +24,7 @@ export default function ExploreMap() {
   const [price, setPrice] = useState('any')
   const [listView, setListView] = useState(false)
   const [areaBounds, setAreaBounds] = useState(null)
+  const [zone, setZone] = useState('All Nairobi Zones')
 
   useEffect(() => {
     fetch(`${API_URL}/events`)
@@ -45,7 +46,7 @@ export default function ExploreMap() {
       ? 'All vibes'
       : category.charAt(0).toUpperCase() + category.slice(1)
 
-  const shown = filterEvents(events, { search, maxMiles, category, price, bounds: areaBounds })
+  const shown = filterEvents(events, { search, maxMiles, category, price, bounds: areaBounds, zone })
 
   // If the selected night was filtered out, the first one on the list is selected
   const activeId = shown.some((e) => e.id === selectedId)
@@ -53,10 +54,12 @@ export default function ExploreMap() {
     : shown[0]?.id
 
   return (
-    <div className="min-h-screen">
-      <TopBar />
-
-      <div className="px-4 py-6 sm:px-11 sm:py-8">
+    <Sidebar
+      selectedLocation={zone}
+      onSelectLocation={setZone}
+      locations={DEFAULT_LOCATIONS}
+    >
+      <div className="py-2">
         <header>
           <h1 className="text-[32px] font-bold leading-tight tracking-tight text-white">
             Your city. After dark.
@@ -132,7 +135,7 @@ export default function ExploreMap() {
               className={
                 listView
                   ? 'mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3'
-                  : 'mt-4 flex flex-col gap-3 pr-1 lg:overflow-y-auto'
+                  : 'mt-4 flex flex-col gap-3 pr-1 lg:overflow-y-auto dark-scroll'
               }
             >
               {shown.map((event) => (
@@ -155,6 +158,7 @@ export default function ExploreMap() {
             <MapPanel
               events={shown}
               selectedId={activeId}
+              flyId={selectedId}
               onSelect={setSelectedId}
               areaActive={Boolean(areaBounds)}
               onSearchArea={setAreaBounds}
@@ -163,13 +167,7 @@ export default function ExploreMap() {
           )}
         </div>
 
-        <footer className="mt-10 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-t border-[#2a2c2f] pt-4 text-[10px] uppercase tracking-wider text-neutral-500">
-          <span>Good people. Great nights.</span>
-          <span className="normal-case tracking-normal">
-            Discover spontaneously. Party responsibly. 21+
-          </span>
-        </footer>
       </div>
-    </div>
+    </Sidebar>
   )
 }
