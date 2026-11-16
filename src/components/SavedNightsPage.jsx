@@ -10,6 +10,7 @@ export default function SavedNightsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
+  const [sort, setSort] = useState('soonest');
 
   useEffect(() => {
     fetch(`${API}/saved`)
@@ -37,9 +38,15 @@ export default function SavedNightsPage() {
     [nights]
   );
 
-  const visibleNights =
-    filter === 'all' ? nights : nights.filter((n) => n.category === filter);
+    const priceNum = (p) => (String(p).toLowerCase() === 'free' ? 0 : Number(p) || 0);
 
+  const visibleNights = [
+    ...(filter === 'all' ? nights : nights.filter((n) => n.category === filter)),
+  ].sort((a, b) =>
+    sort === 'soonest'
+      ? String(a.startTime).localeCompare(String(b.startTime))
+      : priceNum(a.price) - priceNum(b.price)
+  );
   // If the active tab's last night was removed, fall back to "all"
   useEffect(() => {
     if (filter !== 'all' && !categories.includes(filter)) setFilter('all');
@@ -73,6 +80,14 @@ export default function SavedNightsPage() {
               {c === 'all' ? 'All saved' : c}
             </button>
           ))}
+                    <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="ml-auto cursor-pointer rounded-full border border-white/10 bg-[#131519] px-4 py-2 text-sm text-[#8b909a]"
+          >
+            <option value="soonest">Time earliest</option>
+            <option value="price">Price lowest</option>
+          </select>
         </div>
       )}
 
