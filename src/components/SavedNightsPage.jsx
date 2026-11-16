@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SavedNightCard from './SavedNightCard';
 import Sidebar from './Sidebar';
 
-const API = 'http://localhost:3001';
+const API = 'http://localhost:3000';
 
 export default function SavedNightsPage() {
   const navigate = useNavigate();
