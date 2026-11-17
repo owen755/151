@@ -97,7 +97,9 @@ export default function SavedNightsPage() {
         )}
 
         {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
-        {loading && <p className="mt-6 text-[#8b909a]">Loading…</p>}
+                {loading && (
+          <div className="mt-6 h-40 animate-pulse rounded-2xl bg-white/5" />
+        )}
 
         {!loading && !error && nights.length === 0 && (
           <div className="mt-10 rounded-2xl border border-white/10 bg-[#131519] p-8 text-center">
