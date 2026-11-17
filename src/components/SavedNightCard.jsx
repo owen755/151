@@ -7,9 +7,13 @@ export default function SavedNightCard({ night, onUnsave, onView }) {
   return (
     <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#131519]">
       <div className="relative">
-        <img
+                <img
           src={night.image}
           alt={night.title}
+          onError={(e) => {
+            e.currentTarget.src =
+              'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000&auto=format&fit=crop&q=80';
+          }}
           className="h-40 w-full object-cover"
         />
         <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white">
