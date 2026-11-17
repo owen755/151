@@ -22,7 +22,7 @@ export default function SavedNightCard({ night, onUnsave, onView }) {
         <button
           onClick={() => onUnsave(night.id)}
           aria-label={`Unsave ${night.title}`}
-          className="absolute right-3 top-3 cursor-pointer rounded-full bg-black/60 p-2 text-[#d2ff38] transition hover:bg-black/80 active:scale-95"
+          className="absolute right-3 top-3 cursor-pointer rounded-full bg-black/60 p-2 text-[#d2ff38] transition hover:bg-black/80 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d2ff38]"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 21s-7.5-4.6-9.6-9.1C1 8.7 2.7 5 6.2 5c2 0 3.3 1.1 3.8 2 .5-.9 1.8-2 3.8-2 3.5 0 5.2 3.7 3.8 6.9C19.5 16.4 12 21 12 21z" />
@@ -43,7 +43,7 @@ export default function SavedNightCard({ night, onUnsave, onView }) {
           </p>
           <button
             onClick={() => onView(night.id)}
-            className="shrink-0 cursor-pointer rounded-full bg-[#d2ff38] px-4 py-2 text-xs font-bold text-[#0b0c0e] transition hover:brightness-110 active:scale-95"
+            className="shrink-0 cursor-pointer rounded-full bg-[#d2ff38] px-4 py-2 text-xs font-bold text-[#0b0c0e] transition hover:brightness-110 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d2ff38]"
           >
             View night
           </button>
