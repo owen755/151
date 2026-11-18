@@ -831,14 +831,15 @@ export default function DiscoverPage({ onSave }) {
                     <button
                       type="button"
                       onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/events/${currentCard.id}`);
-                      }}
-                      title="View event details"
-                      className="w-9 h-9 rounded-full bg-white/15 hover:bg-[#d2ff38] hover:text-[#0b0c0e] border border-white/20 text-white text-sm flex items-center justify-center transition cursor-pointer"
-                    >
-                      →
-                    </button>
+                       e.stopPropagation();
+                    // This sends the user to /explore AND secretly passes the event ID with them
+                       navigate('/explore', { state: { targetEventId: currentCard.id } });
+                        }}
+                       title="View on Map"
+                         className="w-9 h-9 rounded-full bg-white/15 hover:bg-[#d2ff38] hover:text-[#0b0c0e] border border-white/20 text-white text-sm flex items-center justify-center transition cursor-pointer"
+                        >
+                          →
+                   </button>
                   </div>
                 </div>
               </div>
