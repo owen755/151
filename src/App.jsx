@@ -1,5 +1,5 @@
 // 1. We imported useState here at the top
-import { useState } from 'react'; 
+import { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import DiscoverPage from './components/DiscoverPage';
 import HostPage from './components/HostPage';
@@ -43,7 +43,16 @@ function Custom404() {
 
 export default function App() {
   // 2. THE MASTER LIST: This holds the saved events in memory
-  const [savedEvents, setSavedEvents] = useState([]);
+  // 1. Load from localStorage when the app starts
+  const [savedEvents, setSavedEvents] = useState(() => {
+    const savedData = localStorage.getItem('my_saved_nights');
+    return savedData ? JSON.parse(savedData) : [];
+  });
+
+  // 2. Automatically save to localStorage every time the list changes
+  useEffect(() => {
+    localStorage.setItem('my_saved_nights', JSON.stringify(savedEvents));
+  }, [savedEvents]);
 
   // Function to add a new event (prevents saving the exact same event twice)
   const handleSaveEvent = (newEvent) => {
