@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { API_URL } from '../api';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000&auto=format&fit=crop&q=80';
@@ -257,9 +258,12 @@ export default function DiscoverPage({ onSave }) {
       setEvents([...localHosted, ...DB_JSON_EVENTS]);
     }
 
-    fetch('http://localhost:3000/events')
+    if (!API_URL) return undefined;
+
+    fetch(`${API_URL}/events`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((dbEvents) => {
+      .then((data) => {
+        const dbEvents = Array.isArray(data) ? data : data.events || [];
         if (Array.isArray(dbEvents) && dbEvents.length > 0) {
           const dbIds = new Set(dbEvents.map((e) => String(e.id)));
           const unsyncedLocal = localHosted.filter((e) => !dbIds.has(String(e.id)));
@@ -356,6 +360,18 @@ export default function DiscoverPage({ onSave }) {
   }, [searchQuery, selectedLocation, activeCategory, freeOnly, within5Km]);
 
   const currentCard = filteredEvents[currentIndex];
+
+  // The Explore Map opens Discover at  #/?night=ID  so jump to that night's card.
+  // It runs again when the events load, because the list can change order then.
+  const [searchParams] = useSearchParams();
+  const nightId = searchParams.get('night');
+
+  useEffect(() => {
+    if (!nightId) return;
+    const index = filteredEvents.findIndex((ev) => String(ev.id) === nightId);
+    if (index !== -1) setCurrentIndex(index);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nightId, events]);
   const nextCard = filteredEvents[currentIndex + 1];
 
   // --- SWIPE LEFT (RED -> /skipped) & SWIPE RIGHT (GREEN -> /saved) ---
@@ -369,6 +385,12 @@ export default function DiscoverPage({ onSave }) {
     if (direction === 'right' && onSave) {
       onSave(currentCard);
     }
+    const endpoint = direction === 'right' ? 'saved' : 'skipped';
+    fetch(`${API_URL}/${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentCard)
+    }).catch(() => {});
 
     setTimeout(() => {
       setHistory((prev) => [...prev, { index: currentIndex, direction, card: currentCard }]);
@@ -456,6 +478,11 @@ export default function DiscoverPage({ onSave }) {
       onSave(surpriseEvent);
     }
     
+    fetch(`${API_URL}/saved`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(surpriseEvent)
+    }).catch(() => {});
     setSurpriseModalOpen(false);
     navigate(`/events/${surpriseEvent.id}`);
   };
