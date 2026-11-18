@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { API_URL } from '../api';
 
@@ -360,6 +360,18 @@ export default function DiscoverPage() {
   }, [searchQuery, selectedLocation, activeCategory, freeOnly, within5Km]);
 
   const currentCard = filteredEvents[currentIndex];
+
+  // The Explore Map opens Discover at  #/?night=ID  so jump to that night's card.
+  // It runs again when the events load, because the list can change order then.
+  const [searchParams] = useSearchParams();
+  const nightId = searchParams.get('night');
+
+  useEffect(() => {
+    if (!nightId) return;
+    const index = filteredEvents.findIndex((ev) => String(ev.id) === nightId);
+    if (index !== -1) setCurrentIndex(index);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nightId, events]);
   const nextCard = filteredEvents[currentIndex + 1];
 
   // --- SWIPE LEFT (RED -> /skipped) & SWIPE RIGHT (GREEN -> /saved) ---
