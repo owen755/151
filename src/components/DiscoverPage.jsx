@@ -209,7 +209,7 @@ function formatPriceLabel(priceVal, currency = 'KES') {
   return `${currency} ${num.toLocaleString()}`;
 }
 
-export default function DiscoverPage() {
+export default function DiscoverPage({ onSave }) {
   const navigate = useNavigate();
 
   const [events, setEvents] = useState(DB_JSON_EVENTS);
@@ -365,12 +365,10 @@ export default function DiscoverPage() {
     setAnimState(direction);
     setDragOffset({ x: 0, y: 0 });
 
-    const endpoint = direction === 'right' ? 'saved' : 'skipped';
-    fetch(`http://localhost:3000/${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(currentCard)
-    }).catch(() => {});
+    // NO MORE SERVER: Send it directly to App.jsx master list!
+    if (direction === 'right' && onSave) {
+      onSave(currentCard);
+    }
 
     setTimeout(() => {
       setHistory((prev) => [...prev, { index: currentIndex, direction, card: currentCard }]);
@@ -452,11 +450,12 @@ export default function DiscoverPage() {
 
   const handleAcceptSurprise = () => {
     if (!surpriseEvent) return;
-    fetch('http://localhost:3000/saved', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(surpriseEvent)
-    }).catch(() => {});
+    
+    
+    if (onSave) {
+      onSave(surpriseEvent);
+    }
+    
     setSurpriseModalOpen(false);
     navigate(`/events/${surpriseEvent.id}`);
   };

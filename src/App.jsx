@@ -1,7 +1,12 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+// 1. We imported useState here at the top
+import { useState } from 'react'; 
+import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import DiscoverPage from './components/DiscoverPage';
 import HostPage from './components/HostPage';
+import SavedNightsPage from './components/SavedNightsPage';
+import ExploreMap from './pages/ExploreMap/ExploreMap';
+import CheckoutPage from './features/my-tickets/CheckoutPage';
+import MyTicketsPage from './features/my-tickets/MyTicketsPage';
 
 function Custom404() {
   const location = useLocation();
@@ -37,16 +42,29 @@ function Custom404() {
 }
 
 export default function App() {
+  // 2. THE MASTER LIST: This holds the saved events in memory
+  const [savedEvents, setSavedEvents] = useState([]);
+
+  // Function to add a new event (prevents saving the exact same event twice)
+  const handleSaveEvent = (newEvent) => {
+    if (!savedEvents.find(event => event.id === newEvent.id)) {
+      setSavedEvents([...savedEvents, newEvent]);
+    }
+  };
+
   return (
     <Router>
       <Routes>
-        {/* Your Main Discover Page */}
-        <Route path="/" element={<DiscoverPage />} />
+        {/* 3. Pass the save function to DiscoverPage as a prop */}
+        <Route path="/" element={<DiscoverPage onSave={handleSaveEvent} />} />
 
-        {/* Teammate Paths Created & Waiting to be Linked */}
-        <Route path="/saved-nights" element={<Custom404 />} />
-        <Route path="/my-tickets" element={<Custom404 />} />
-        <Route path="/explore" element={<Custom404 />} />
+        {/* 4. Pass the master list to SavedNightsPage as a prop */}
+        <Route path="/saved-nights" element={<SavedNightsPage savedEvents={savedEvents} />} />
+        
+        {/* Teammate Paths */}
+        <Route path="/checkout/:id" element={<CheckoutPage />} />
+        <Route path="/my-tickets" element={<MyTicketsPage />} />
+        <Route path="/explore" element={<ExploreMap />} />
         <Route path="/host" element={<HostPage />} />
         <Route path="/events/:id" element={<Custom404 />} />
         <Route path="/gate-scanner" element={<Custom404 />} />
