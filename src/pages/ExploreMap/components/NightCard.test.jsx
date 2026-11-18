@@ -1,16 +1,21 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Routes, Route } from 'react-router-dom'
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
 import NightCard from './NightCard'
 import { normalizeEvent } from '../normalizeEvent'
 import { dbEvents } from '../testEvents'
+
+function Where() {
+  const { search } = useLocation()
+  return <p>Discover {search}</p>
+}
 
 function renderCard(event, props = {}) {
   return render(
     <MemoryRouter initialEntries={['/explore']}>
       <Routes>
         <Route path="/explore" element={<NightCard event={event} {...props} />} />
-        <Route path="/events/:id" element={<p>Event page</p>} />
+        <Route path="/" element={<Where />} />
       </Routes>
     </MemoryRouter>
   )
@@ -42,12 +47,12 @@ describe('NightCard', () => {
     expect(container.firstChild).toHaveClass('border-[#d2ff38]')
   })
 
-  test('View night opens the event page without selecting the card', async () => {
+  test('View night opens Discover on that night without selecting the card', async () => {
     const user = userEvent.setup()
     const onSelect = jest.fn()
     renderCard(normalizeEvent(dbEvents[0]), { onSelect })
     await user.click(screen.getByRole('button', { name: /view night/i }))
-    expect(screen.getByText('Event page')).toBeInTheDocument()
+    expect(screen.getByText('Discover ?night=1')).toBeInTheDocument()
     expect(onSelect).not.toHaveBeenCalled()
   })
 })

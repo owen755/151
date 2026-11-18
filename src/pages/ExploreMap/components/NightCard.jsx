@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { nightLink } from '../links'
 
 export default function NightCard({ event, selected = false, onSelect }) {
   const navigate = useNavigate()
@@ -32,7 +33,7 @@ export default function NightCard({ event, selected = false, onSelect }) {
           type="button"
           onClick={(e) => {
             e.stopPropagation()
-            navigate(`/events/${event.id}`)
+            navigate(nightLink(event.id))
           }}
           className="mt-2 cursor-pointer text-left text-xs text-[#d2ff38]"
         >
