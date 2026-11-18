@@ -5,6 +5,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import '../map.css'
 import { YOU } from '../distance'
+import { nightLink } from '../links'
 
 const TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
 
@@ -129,7 +130,7 @@ export default function MapPanel({ events, selectedId, onSelect, flyId, areaActi
             </div>
             <button
               type="button"
-              onClick={() => navigate(`/events/${selected.id}`)}
+              onClick={() => navigate(nightLink(selected.id))}
               className="shrink-0 cursor-pointer rounded-full bg-[#d2ff38] px-4 py-2 text-xs font-bold text-[#0b0c0e]"
             >
               View night →
