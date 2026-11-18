@@ -4,6 +4,7 @@ import NightCard from './components/NightCard'
 import Sidebar, { DEFAULT_LOCATIONS } from '../../components/Sidebar'
 import MapPanel from './components/MapPanel'
 import { API_URL } from './api'
+import backup from '../../../server/db.json'
 import { normalizeEvent } from './normalizeEvent'
 import {
   DISTANCE_OPTIONS,
@@ -14,8 +15,11 @@ import {
 } from './filters'
 
 export default function ExploreMap() {
-  const [events, setEvents] = useState([])
-  const [status, setStatus] = useState('loading') // loading | error | ready
+  // With no data server (the live site) we start with the bundled copy of db.json
+  const [events, setEvents] = useState(() =>
+    API_URL ? [] : backup.events.map(normalizeEvent)
+  )
+  const [status, setStatus] = useState(API_URL ? 'loading' : 'ready') // loading | error | ready
   const [selectedId, setSelectedId] = useState(null)
 
   const [search, setSearch] = useState('')
@@ -27,6 +31,8 @@ export default function ExploreMap() {
   const [zone, setZone] = useState('All Nairobi Zones')
 
   useEffect(() => {
+    if (!API_URL) return
+
     fetch(`${API_URL}/events`)
       .then((res) => {
         if (!res.ok) throw new Error('Bad response')
