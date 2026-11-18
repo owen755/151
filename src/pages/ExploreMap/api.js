@@ -5,4 +5,4 @@
 //   empty and the page uses the copy of db.json that is bundled with the app.
 //   If the team hosts a server later, set VITE_API_URL when building.
 export const API_URL =
-  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : '')
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : '')

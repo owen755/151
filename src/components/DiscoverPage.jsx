@@ -257,9 +257,10 @@ export default function DiscoverPage() {
       setEvents([...localHosted, ...DB_JSON_EVENTS]);
     }
 
-    fetch('http://localhost:3000/events')
+    fetch('/api/events')
       .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((dbEvents) => {
+      .then((data) => {
+        const dbEvents = Array.isArray(data) ? data : data.events || [];
         if (Array.isArray(dbEvents) && dbEvents.length > 0) {
           const dbIds = new Set(dbEvents.map((e) => String(e.id)));
           const unsyncedLocal = localHosted.filter((e) => !dbIds.has(String(e.id)));
@@ -366,7 +367,7 @@ export default function DiscoverPage() {
     setDragOffset({ x: 0, y: 0 });
 
     const endpoint = direction === 'right' ? 'saved' : 'skipped';
-    fetch(`http://localhost:3000/${endpoint}`, {
+    fetch(`/api/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(currentCard)
@@ -452,7 +453,7 @@ export default function DiscoverPage() {
 
   const handleAcceptSurprise = () => {
     if (!surpriseEvent) return;
-    fetch('http://localhost:3000/saved', {
+    fetch('/api/saved', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(surpriseEvent)

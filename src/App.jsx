@@ -1,10 +1,10 @@
-import React from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import DiscoverPage from './components/DiscoverPage';
 import HostPage from './components/HostPage';
 import SavedNightsPage from './components/SavedNightsPage';
-
 import ExploreMap from './pages/ExploreMap/ExploreMap';
+import MyTicketsPage from './features/my-tickets/MyTicketsPage';
+
 function Custom404() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ export default function App() {
 
         {/* Teammate Paths Created & Waiting to be Linked */}
         <Route path="/saved-nights" element={<SavedNightsPage />} />
-        <Route path="/my-tickets" element={<Custom404 />} />
+        <Route path="/my-tickets" element={<MyTicketsPage />} />
         <Route path="/explore" element={<ExploreMap />} />
         <Route path="/host" element={<HostPage />} />
         <Route path="/events/:id" element={<Custom404 />} />
