@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import FilterChip from './components/FilterChip'
 import NightCard from './components/NightCard'
 import Sidebar, { DEFAULT_LOCATIONS } from '../../components/Sidebar'
@@ -15,12 +16,14 @@ import {
 } from './filters'
 
 export default function ExploreMap() {
-  // With no data server (the live site) we start with the bundled copy of db.json
+  const location = useLocation(); 
   const [events, setEvents] = useState(() =>
     API_URL ? [] : backup.events.map(normalizeEvent)
   )
-  const [status, setStatus] = useState(API_URL ? 'loading' : 'ready') // loading | error | ready
-  const [selectedId, setSelectedId] = useState(null)
+  const [status, setStatus] = useState(API_URL ? 'loading' : 'ready') 
+  
+  
+  const [selectedId, setSelectedId] = useState(location.state?.targetEventId || null)
 
   const [search, setSearch] = useState('')
   const [maxMiles, setMaxMiles] = useState(5)
