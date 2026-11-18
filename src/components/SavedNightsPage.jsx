@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SavedNightCard from './SavedNightCard';
 import Sidebar from './Sidebar';
-
-const API = 'http://localhost:3000';
+import { API_URL } from '../api';
 
 export default function SavedNightsPage() {
   const navigate = useNavigate();
@@ -14,7 +13,7 @@ export default function SavedNightsPage() {
   const [sort, setSort] = useState('soonest');
 
   useEffect(() => {
-    fetch(`${API}/saved`)
+    fetch(`${API_URL}/saved`)
       .then((res) => {
         if (!res.ok) throw new Error('Could not load saved nights');
         return res.json();
@@ -26,7 +25,7 @@ export default function SavedNightsPage() {
 
   const handleUnsave = async (id) => {
     try {
-      await fetch(`${API}/saved/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/saved/${id}`, { method: 'DELETE' });
       setNights((prev) => prev.filter((n) => n.id !== id));
     } catch {
       setError('Could not remove that night. Try again.');
@@ -122,7 +121,7 @@ export default function SavedNightsPage() {
               key={night.id}
               night={night}
               onUnsave={handleUnsave}
-              onView={(id) => navigate(`/events/${id}`)}
+              onBuyTickets={(event) => navigate(`/checkout/${event.id}`, { state: { event } })}
             />
           ))}
         </div>

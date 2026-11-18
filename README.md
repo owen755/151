@@ -23,6 +23,12 @@ You can also run only the API with `npm run server` and only the frontend with
 `npm run dev`. The direct API endpoint is `http://localhost:3000/events` by
 default.
 
+Saved nights have a **Get tickets** action that opens a demo checkout. Confirming
+it creates a ticket in the JSON Server `tickets` collection and opens My Tickets.
+The checkout is simulated only; it does not collect payment details or charge
+money. If the API is unavailable, the demo ticket is stored in browser local
+storage instead.
+
 ## Deploy to GitHub Pages
 
 Run `npm run deploy` to build the app and publish the `dist` folder to the
