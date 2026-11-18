@@ -3,6 +3,7 @@ import DiscoverPage from './components/DiscoverPage';
 import HostPage from './components/HostPage';
 import SavedNightsPage from './components/SavedNightsPage';
 import ExploreMap from './pages/ExploreMap/ExploreMap';
+import CheckoutPage from './features/my-tickets/CheckoutPage';
 import MyTicketsPage from './features/my-tickets/MyTicketsPage';
 
 function Custom404() {
@@ -47,6 +48,7 @@ export default function App() {
 
         {/* Teammate Paths Created & Waiting to be Linked */}
         <Route path="/saved-nights" element={<SavedNightsPage />} />
+        <Route path="/checkout/:id" element={<CheckoutPage />} />
         <Route path="/my-tickets" element={<MyTicketsPage />} />
         <Route path="/explore" element={<ExploreMap />} />
         <Route path="/host" element={<HostPage />} />

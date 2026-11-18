@@ -3,7 +3,7 @@ const formatPrice = (price, currency) =>
     ? 'Free'
     : `${Number(price).toLocaleString()} ${currency || 'KES'}`;
 
-export default function SavedNightCard({ night, onUnsave, onView }) {
+export default function SavedNightCard({ night, onUnsave, onBuyTickets }) {
   return (
     <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#131519]">
       <div className="relative">
@@ -41,13 +41,13 @@ export default function SavedNightCard({ night, onUnsave, onView }) {
             <br />
             {night.location?.venue}
           </p>
-          <button
-            onClick={() => onView(night.id)}
-            className="shrink-0 cursor-pointer rounded-full bg-[#d2ff38] px-4 py-2 text-xs font-bold text-[#0b0c0e] transition hover:brightness-110 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d2ff38]"
-          >
-            View night
-          </button>
         </div>
+        <button
+            onClick={() => onBuyTickets(night)}
+            className="mt-4 w-full cursor-pointer rounded-full bg-[#d2ff38] px-4 py-2.5 text-xs font-bold text-[#0b0c0e] transition hover:brightness-110 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d2ff38]"
+          >
+            Get tickets <span aria-hidden="true">→</span>
+          </button>
       </div>
     </article>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { API_URL } from '../api';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000&auto=format&fit=crop&q=80';
@@ -257,7 +258,9 @@ export default function DiscoverPage() {
       setEvents([...localHosted, ...DB_JSON_EVENTS]);
     }
 
-    fetch('/api/events')
+    if (!API_URL) return undefined;
+
+    fetch(`${API_URL}/events`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => {
         const dbEvents = Array.isArray(data) ? data : data.events || [];
@@ -367,7 +370,7 @@ export default function DiscoverPage() {
     setDragOffset({ x: 0, y: 0 });
 
     const endpoint = direction === 'right' ? 'saved' : 'skipped';
-    fetch(`/api/${endpoint}`, {
+    fetch(`${API_URL}/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(currentCard)
@@ -453,7 +456,7 @@ export default function DiscoverPage() {
 
   const handleAcceptSurprise = () => {
     if (!surpriseEvent) return;
-    fetch('/api/saved', {
+    fetch(`${API_URL}/saved`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(surpriseEvent)

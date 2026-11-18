@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import Sidebar from '../../components/Sidebar';
+import { API_URL } from '../../api';
 
 const TICKETS_STORAGE_KEY = 'aftr_my_tickets';
 const NAIROBI_TIME_ZONE = 'Africa/Nairobi';
@@ -436,7 +437,8 @@ function TicketCard({ ticket, onShow }) {
 
 export default function MyTicketsPage() {
   const navigate = useNavigate();
-  const [tickets] = useState(readTickets);
+  const [tickets, setTickets] = useState([]);
+  const [ticketsLoading, setTicketsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState('all');
@@ -444,12 +446,34 @@ export default function MyTicketsPage() {
   const [clock, setClock] = useState(getNairobiClock);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(tickets));
-    } catch {
-      // Ticket previews remain available when browser storage is disabled.
-    }
-  }, [tickets]);
+    let cancelled = false;
+
+    const loadTickets = async () => {
+      try {
+        if (!API_URL) throw new Error('No ticket server configured');
+        const response = await fetch(`${API_URL}/tickets`);
+        if (!response.ok) throw new Error('Could not load tickets');
+        const serverTickets = await response.json();
+        if (cancelled) return;
+        const ticketList = Array.isArray(serverTickets) ? serverTickets : [];
+        setTickets(ticketList);
+        try {
+          localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(ticketList));
+        } catch {
+          // Server tickets remain available when browser storage is disabled.
+        }
+      } catch {
+        if (!cancelled) setTickets(readTickets());
+      } finally {
+        if (!cancelled) setTicketsLoading(false);
+      }
+    };
+
+    loadTickets();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => setClock(getNairobiClock()), 60_000);
@@ -572,7 +596,9 @@ export default function MyTicketsPage() {
               </section>
             )}
 
-            {visibleTickets.length ? (
+            {ticketsLoading ? (
+              <div aria-label="Loading tickets" className="h-40 animate-pulse rounded-xl border border-white/[0.06] bg-white/[0.03]" />
+            ) : visibleTickets.length ? (
               <div className="flex flex-col gap-2.5">
                 {visibleTickets.map((ticket) => <TicketCard key={ticket.id} onShow={setSelectedTicket} ticket={ticket} />)}
               </div>
