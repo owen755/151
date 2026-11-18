@@ -62,6 +62,8 @@ export default function App() {
         <Route path="/saved-nights" element={<SavedNightsPage savedEvents={savedEvents} />} />
         
         {/* Teammate Paths */}
+        {/* Teammate Paths Created & Waiting to be Linked */}
+        <Route path="/saved-nights" element={<SavedNightsPage />} />
         <Route path="/checkout/:id" element={<CheckoutPage />} />
         <Route path="/my-tickets" element={<MyTicketsPage />} />
         <Route path="/explore" element={<ExploreMap />} />
