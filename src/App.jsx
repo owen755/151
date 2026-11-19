@@ -1,3 +1,5 @@
+// 1. We imported useState here at the top
+import { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import DiscoverPage from './components/DiscoverPage';
 import HostPage from './components/HostPage';
@@ -40,12 +42,35 @@ function Custom404() {
 }
 
 export default function App() {
+  // 2. THE MASTER LIST: This holds the saved events in memory
+  // 1. Load from localStorage when the app starts
+  const [savedEvents, setSavedEvents] = useState(() => {
+    const savedData = localStorage.getItem('my_saved_nights');
+    return savedData ? JSON.parse(savedData) : [];
+  });
+
+  // 2. Automatically save to localStorage every time the list changes
+  useEffect(() => {
+    localStorage.setItem('my_saved_nights', JSON.stringify(savedEvents));
+  }, [savedEvents]);
+
+  // Function to add a new event (prevents saving the exact same event twice)
+  const handleSaveEvent = (newEvent) => {
+    if (!savedEvents.find(event => event.id === newEvent.id)) {
+      setSavedEvents([...savedEvents, newEvent]);
+    }
+  };
+
   return (
     <Router>
       <Routes>
-        {/* Your Main Discover Page */}
-        <Route path="/" element={<DiscoverPage />} />
+        {/* 3. Pass the save function to DiscoverPage as a prop */}
+        <Route path="/" element={<DiscoverPage onSave={handleSaveEvent} />} />
 
+        {/* 4. Pass the master list to SavedNightsPage as a prop */}
+        <Route path="/saved-nights" element={<SavedNightsPage savedEvents={savedEvents} />} />
+        
+        {/* Teammate Paths */}
         {/* Teammate Paths Created & Waiting to be Linked */}
         <Route path="/saved-nights" element={<SavedNightsPage />} />
         <Route path="/checkout/:id" element={<CheckoutPage />} />

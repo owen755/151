@@ -210,7 +210,7 @@ function formatPriceLabel(priceVal, currency = 'KES') {
   return `${currency} ${num.toLocaleString()}`;
 }
 
-export default function DiscoverPage() {
+export default function DiscoverPage({ onSave }) {
   const navigate = useNavigate();
 
   const [events, setEvents] = useState(DB_JSON_EVENTS);
@@ -381,6 +381,10 @@ export default function DiscoverPage() {
     setAnimState(direction);
     setDragOffset({ x: 0, y: 0 });
 
+    // NO MORE SERVER: Send it directly to App.jsx master list!
+    if (direction === 'right' && onSave) {
+      onSave(currentCard);
+    }
     const endpoint = direction === 'right' ? 'saved' : 'skipped';
     fetch(`${API_URL}/${endpoint}`, {
       method: 'POST',
@@ -468,6 +472,12 @@ export default function DiscoverPage() {
 
   const handleAcceptSurprise = () => {
     if (!surpriseEvent) return;
+    
+    
+    if (onSave) {
+      onSave(surpriseEvent);
+    }
+    
     fetch(`${API_URL}/saved`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -848,14 +858,15 @@ export default function DiscoverPage() {
                     <button
                       type="button"
                       onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/events/${currentCard.id}`);
-                      }}
-                      title="View event details"
-                      className="w-9 h-9 rounded-full bg-white/15 hover:bg-[#d2ff38] hover:text-[#0b0c0e] border border-white/20 text-white text-sm flex items-center justify-center transition cursor-pointer"
-                    >
-                      →
-                    </button>
+                       e.stopPropagation();
+                    // This sends the user to /explore AND secretly passes the event ID with them
+                       navigate('/explore', { state: { targetEventId: currentCard.id } });
+                        }}
+                       title="View on Map"
+                         className="w-9 h-9 rounded-full bg-white/15 hover:bg-[#d2ff38] hover:text-[#0b0c0e] border border-white/20 text-white text-sm flex items-center justify-center transition cursor-pointer"
+                        >
+                          →
+                   </button>
                   </div>
                 </div>
               </div>

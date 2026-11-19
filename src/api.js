@@ -1,2 +1,1 @@
-export const API_URL =
-  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : '');
+export const API_URL = 'https://3f1b6e82-e2e9-44d4-838e-89fe5d22d9b6.mock.pstmn.io';
