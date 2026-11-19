@@ -99,6 +99,7 @@ function saveTicketLocally(ticket) {
     const existing = JSON.parse(localStorage.getItem(LOCAL_TICKETS_KEY) || '[]');
     const tickets = Array.isArray(existing) ? existing : [];
     localStorage.setItem(LOCAL_TICKETS_KEY, JSON.stringify([ticket, ...tickets]));
+    window.dispatchEvent(new Event('aftr:tickets-updated'));
   } catch {
     throw new Error('Could not save your ticket in this browser.');
   }
@@ -286,6 +287,7 @@ export default function CheckoutPage() {
         neighborhood: event.location?.address || 'Nairobi, Kenya',
         date: getEventDate(event.startTime),
         time: event.startTime || '20:00',
+        endTime: event.endTime || '',
         image: event.image,
         price: effectiveUnitPrice,
         currency: event.currency || 'KES',
@@ -309,7 +311,6 @@ export default function CheckoutPage() {
           });
           if (response.ok) {
             const savedTicket = await response.json();
-            // Keep our real ticket fields in case the mock server returns a static stub
             saveTicketLocally({
               ...ticket,
               id: savedTicket?.id || ticket.id

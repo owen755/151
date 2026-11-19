@@ -24,6 +24,15 @@ export const DEFAULT_LOCATIONS = [
   'Haile Selassie Ave'
 ];
 
+function getSavedNightsCount() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('my_saved_nights') || '[]');
+    return Array.isArray(raw) ? raw.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
 export default function Sidebar({
   children,
   selectedLocation: propLocation,
@@ -35,6 +44,7 @@ export default function Sidebar({
 
   const [internalLocation, setInternalLocation] = useState('All Nairobi Zones');
   const [locationMenuOpen, setLocationMenuOpen] = useState(false);
+  const [savedCount, setSavedCount] = useState(getSavedNightsCount);
   const locationDropdownRef = useRef(null);
 
   const activeLocation = propLocation !== undefined ? propLocation : internalLocation;
@@ -45,6 +55,18 @@ export default function Sidebar({
       onSelectLocation(loc);
     }
   };
+
+  useEffect(() => {
+    const syncCount = () => setSavedCount(getSavedNightsCount());
+    syncCount();
+
+    window.addEventListener('aftr:saved-nights-updated', syncCount);
+    window.addEventListener('storage', syncCount);
+    return () => {
+      window.removeEventListener('aftr:saved-nights-updated', syncCount);
+      window.removeEventListener('storage', syncCount);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -58,12 +80,13 @@ export default function Sidebar({
 
   const navItems = [
     { label: 'Discover', path: '/' },
-    { label: 'Saved nights', path: '/saved-nights' },
+    { label: 'Saved nights', path: '/saved-nights', badge: savedCount },
     { label: 'My tickets', path: '/my-tickets' },
     { label: 'Explore map', path: '/explore' }
   ];
 
   const isHostPage = pathname === '/host';
+  const isGateScannerPage = pathname === '/gate-scanner';
 
   return (
     <LocationFilterContext.Provider
@@ -100,6 +123,14 @@ export default function Sidebar({
                   }`}
                 >
                   <span>{item.label}</span>
+                  {item.badge > 0 && (
+                    <span
+                      aria-label={`${item.badge} saved`}
+                      className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#d2ff38] px-1.5 text-[10px] font-extrabold text-[#0b0c0e] shadow-[0_0_10px_rgba(210,255,56,0.35)]"
+                    >
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -114,6 +145,32 @@ export default function Sidebar({
               <p className="text-[11px] text-[#8b909a] leading-snug">
                 Launch your event into tonight's live swipe deck across Nairobi.
               </p>
+              <button
+                type="button"
+                onClick={() => navigate('/gate-scanner')}
+                className="mt-3 w-full flex items-center justify-between text-[#d2ff38] text-[12px] font-semibold cursor-pointer hover:underline"
+              >
+                <span>Open gate scanner</span>
+                <span>→</span>
+              </button>
+            </div>
+          ) : isGateScannerPage ? (
+            <div className="mt-auto mb-5 bg-[#1e2418] border border-[#d2ff38]/40 rounded-2xl p-4">
+              <span className="inline-block text-[9px] font-extrabold tracking-wider text-[#d2ff38] mb-1">
+                DOOR CHECK-IN
+              </span>
+              <h4 className="text-[14px] font-bold mb-1 text-white">Gate Scanner Active</h4>
+              <p className="text-[11px] text-[#8b909a] leading-snug">
+                Verify guest passes and mark tickets attended at entry.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/host')}
+                className="mt-3 w-full flex items-center justify-between text-[#d2ff38] text-[12px] font-semibold cursor-pointer hover:underline"
+              >
+                <span>Back to host portal</span>
+                <span>→</span>
+              </button>
             </div>
           ) : (
             <div className="mt-auto mb-5 bg-gradient-to-br from-[#1b2116] to-[#141812] border border-[#d2ff38]/20 rounded-2xl p-4">
@@ -243,13 +300,18 @@ export default function Sidebar({
                   key={item.path}
                   type="button"
                   onClick={() => navigate(item.path)}
-                  className={`flex flex-col items-center justify-center py-2 px-2 rounded-xl text-[11px] sm:text-[12px] cursor-pointer transition ${
+                  className={`relative flex items-center justify-center gap-1 py-2 px-2 rounded-xl text-[11px] sm:text-[12px] cursor-pointer transition ${
                     isActive
                       ? 'bg-[#1e2418] text-[#d2ff38] font-semibold'
                       : 'text-[#8b909a] hover:bg-white/5'
                   }`}
                 >
-                  <span>{item.label}</span>
+                  <span className="truncate">{item.label}</span>
+                  {item.badge > 0 && (
+                    <span className="inline-flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#d2ff38] px-1 text-[9px] font-extrabold text-[#0b0c0e]">
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </span>
+                  )}
                 </button>
               );
             })}

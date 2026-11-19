@@ -1,12 +1,33 @@
-// 1. We imported useState here at the top
 import { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import DiscoverPage from './components/DiscoverPage';
 import HostPage from './components/HostPage';
+import GateScannerPage from './components/GateScannerPage';
 import SavedNightsPage from './components/SavedNightsPage';
 import ExploreMap from './pages/ExploreMap/ExploreMap';
 import CheckoutPage from './features/my-tickets/CheckoutPage';
 import MyTicketsPage from './features/my-tickets/MyTicketsPage';
+
+const SAVED_NIGHTS_KEY = 'my_saved_nights';
+
+function readSavedNights() {
+  try {
+    const savedData = localStorage.getItem(SAVED_NIGHTS_KEY);
+    const parsed = savedData ? JSON.parse(savedData) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeSavedNights(list) {
+  try {
+    localStorage.setItem(SAVED_NIGHTS_KEY, JSON.stringify(list));
+  } catch {
+    // Ignore storage quota errors
+  }
+  window.dispatchEvent(new Event('aftr:saved-nights-updated'));
+}
 
 function Custom404() {
   const location = useLocation();
@@ -42,43 +63,45 @@ function Custom404() {
 }
 
 export default function App() {
-  // 2. THE MASTER LIST: This holds the saved events in memory
-  // 1. Load from localStorage when the app starts
-  const [savedEvents, setSavedEvents] = useState(() => {
-    const savedData = localStorage.getItem('my_saved_nights');
-    return savedData ? JSON.parse(savedData) : [];
-  });
+  const [savedEvents, setSavedEvents] = useState(readSavedNights);
 
-  // 2. Automatically save to localStorage every time the list changes
   useEffect(() => {
-    localStorage.setItem('my_saved_nights', JSON.stringify(savedEvents));
+    writeSavedNights(savedEvents);
   }, [savedEvents]);
 
-  // Function to add a new event (prevents saving the exact same event twice)
   const handleSaveEvent = (newEvent) => {
-    if (!savedEvents.find(event => event.id === newEvent.id)) {
-      setSavedEvents([...savedEvents, newEvent]);
-    }
+    setSavedEvents((prev) => {
+      if (prev.some((event) => String(event.id) === String(newEvent.id))) {
+        return prev;
+      }
+      const next = [...prev, newEvent];
+      writeSavedNights(next);
+      return next;
+    });
+  };
+
+  const handleUnsaveEvent = (eventId) => {
+    setSavedEvents((prev) => {
+      const next = prev.filter((event) => String(event.id) !== String(eventId));
+      writeSavedNights(next);
+      return next;
+    });
   };
 
   return (
     <Router>
       <Routes>
-        {/* 3. Pass the save function to DiscoverPage as a prop */}
         <Route path="/" element={<DiscoverPage onSave={handleSaveEvent} />} />
-
-        {/* 4. Pass the master list to SavedNightsPage as a prop */}
-        <Route path="/saved-nights" element={<SavedNightsPage savedEvents={savedEvents} />} />
-        
-        {/* Teammate Paths */}
-        {/* Teammate Paths Created & Waiting to be Linked */}
-        <Route path="/saved-nights" element={<SavedNightsPage />} />
+        <Route
+          path="/saved-nights"
+          element={<SavedNightsPage savedEvents={savedEvents} onUnsave={handleUnsaveEvent} />}
+        />
         <Route path="/checkout/:id" element={<CheckoutPage />} />
         <Route path="/my-tickets" element={<MyTicketsPage />} />
         <Route path="/explore" element={<ExploreMap />} />
         <Route path="/host" element={<HostPage />} />
         <Route path="/events/:id" element={<Custom404 />} />
-        <Route path="/gate-scanner" element={<Custom404 />} />
+        <Route path="/gate-scanner" element={<GateScannerPage />} />
         <Route path="*" element={<Custom404 />} />
       </Routes>
     </Router>
