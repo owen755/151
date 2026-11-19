@@ -86,6 +86,7 @@ export default function Sidebar({
   ];
 
   const isHostPage = pathname === '/host';
+  const isGateScannerPage = pathname === '/gate-scanner';
 
   return (
     <LocationFilterContext.Provider
@@ -144,6 +145,32 @@ export default function Sidebar({
               <p className="text-[11px] text-[#8b909a] leading-snug">
                 Launch your event into tonight's live swipe deck across Nairobi.
               </p>
+              <button
+                type="button"
+                onClick={() => navigate('/gate-scanner')}
+                className="mt-3 w-full flex items-center justify-between text-[#d2ff38] text-[12px] font-semibold cursor-pointer hover:underline"
+              >
+                <span>Open gate scanner</span>
+                <span>→</span>
+              </button>
+            </div>
+          ) : isGateScannerPage ? (
+            <div className="mt-auto mb-5 bg-[#1e2418] border border-[#d2ff38]/40 rounded-2xl p-4">
+              <span className="inline-block text-[9px] font-extrabold tracking-wider text-[#d2ff38] mb-1">
+                DOOR CHECK-IN
+              </span>
+              <h4 className="text-[14px] font-bold mb-1 text-white">Gate Scanner Active</h4>
+              <p className="text-[11px] text-[#8b909a] leading-snug">
+                Verify guest passes and mark tickets attended at entry.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/host')}
+                className="mt-3 w-full flex items-center justify-between text-[#d2ff38] text-[12px] font-semibold cursor-pointer hover:underline"
+              >
+                <span>Back to host portal</span>
+                <span>→</span>
+              </button>
             </div>
           ) : (
             <div className="mt-auto mb-5 bg-gradient-to-br from-[#1b2116] to-[#141812] border border-[#d2ff38]/20 rounded-2xl p-4">

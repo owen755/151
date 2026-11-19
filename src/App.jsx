@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import DiscoverPage from './components/DiscoverPage';
 import HostPage from './components/HostPage';
+import GateScannerPage from './components/GateScannerPage';
 import SavedNightsPage from './components/SavedNightsPage';
 import ExploreMap from './pages/ExploreMap/ExploreMap';
 import CheckoutPage from './features/my-tickets/CheckoutPage';
@@ -100,7 +101,7 @@ export default function App() {
         <Route path="/explore" element={<ExploreMap />} />
         <Route path="/host" element={<HostPage />} />
         <Route path="/events/:id" element={<Custom404 />} />
-        <Route path="/gate-scanner" element={<Custom404 />} />
+        <Route path="/gate-scanner" element={<GateScannerPage />} />
         <Route path="*" element={<Custom404 />} />
       </Routes>
     </Router>
