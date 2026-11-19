@@ -1,51 +1,69 @@
-# React + Vite
+# AFTR — Event Discovery & Ticketing for Nairobi
 
-## Run the app and events API
+Figuring out what to do on a Friday night in Nairobi shouldn't feel like a part-time job. Right now, finding out where the vibe is means digging through scattered WhatsApp statuses, endless Instagram flyers, and half a dozen disconnected ticketing links—only to realize the event is across town or sold out.
 
-Install dependencies once with `npm install`, then start both the frontend and
-JSON Server with:
+**AFTR** brings nightlife, daytime sets, and local workshops into one place. It’s a fast, mobile-first web app built to take you from *"what's happening tonight?"* to a QR code in your wallet in under a minute.
 
-```sh
-npm run dev:all
-```
+**Design & Wireframes:**
 
-The frontend requests events from `/api/events`. Vite proxies that request to
-JSON Server, which reads and updates `server/db.json` and listens on port `3000`
-by default.
+ [View the Figma Design](https://www.figma.com/design/7PyxrcXITLG6mFkHLJsXun/Untitled?node-id=0-1&t=x3lrVHIz44tagu7q-1)
 
-To use a different API port, set `API_PORT` for both processes:
+---
 
-```sh
-API_PORT=3001 npm run dev:all
-```
+## Why We Built This
 
-You can also run only the API with `npm run server` and only the frontend with
-`npm run dev`. The direct API endpoint is `http://localhost:3000/events` by
-default.
+Most event platforms feel like spreadsheets with banner images. They overwhelm you with walls of text, give you zero sense of where venues actually sit relative to where you are, and force you off-platform the second you decide to commit.
 
-Saved nights have a **Get tickets** action that opens a demo checkout. Confirming
-it creates a ticket in the JSON Server `tickets` collection and opens My Tickets.
-The checkout is simulated only; it does not collect payment details or charge
-money. If the API is unavailable, the demo ticket is stored in browser local
-storage instead.
+We wanted AFTR to feel effortless:
+- **Less scrolling, faster decisions:** Swipe through curated cards instead of reading endless event lists.
+- **Know where you're going:** Filter events by neighborhood (Westlands, Kilimani, Karen, Lavington) and distance radius so you know what's actually close.
+- **Everything stays put:** Save events to your personal shortlist and lock in tickets without losing your progress when you refresh the page.
 
-## Deploy to GitHub Pages
+---
 
-Run `npm run deploy` to build the app and publish the `dist` folder to the
-`gh-pages` branch. The client uses hash-based routes so direct page navigation
-works on GitHub Pages.
+## Core Features
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### 1. Discover (The Swipe Deck)
+A card-based discovery feed tailored to Nairobi's nightlife and culture. Each card shows the venue, neighborhood, entry fee (in KSh or Free RSVP), and start time. Hit **I'm In** to stash the night for later, **Pass** to keep moving, or tap **Surprise Me** when you're indecisive and want a random pick matched to your budget and vibe.
 
-Currently, two official plugins are available:
+### 2. Explore Map
+An interactive neighborhood view that plots events visually. Users can filter by category, price, and distance radius, or jump straight from a card on the Discover feed directly to its pin on the map.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 3. Saved Nights
+Your personal weekend shortlist. Compare the events you liked, check start times in East Africa Time (EAT), remove plans that no longer fit, or head straight into checkout.
 
-## React Compiler
+### 4. Simulated Checkout & Digital Wallet (`My Tickets`)
+A clean booking flow that collects attendee details and generates an instant digital pass. Inside **My Tickets**, users can:
+- View upcoming vs. past events with live EAT time tracking.
+- Pull up a full-screen entry pass complete with a unique booking reference (`AFTR-XXXX-XXXX`) and a scannable QR code.
+- Download a plain-text receipt or export an `.ics` file directly to their phone's calendar.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## How It Works Under the Hood
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+AFTR is built with **React**, **Vite**, **React Router**, and **Tailwind CSS**, using a hybrid data setup to keep the UI snappy while still simulating real API communication:
+
+- **Event Catalog (`GET`):** On load, the app fetches the master event list asynchronously from a **Postman Mock Server** (with a local `db.json` fallback so the app never breaks offline).
+- **Client-Side Persistence (`localStorage` + Elevated State):** Mock servers don't persist `POST` requests across sessions—if you rely on them alone, refreshing the page wipes out newly purchased tickets and saved events. To solve this, `App.jsx` manages global user state and syncs every saved night and booked ticket directly to `localStorage`. When `MyTicketsPage` loads, it merges server responses with local browser storage without overwriting user data.
+
+---
+
+## Project Structure
+
+```text
+aftr/
+├── server/
+│   └── db.json                 # Fallback event catalog data
+├── src/
+│   ├── api.js                  # Postman Mock Server endpoint config
+│   ├── App.jsx                 # Global state & routing setup
+│   ├── components/
+│   │   └── Sidebar.jsx         # Persistent navigation shell
+│   └── pages/
+│       ├── DiscoverPage.jsx    # Swipe deck & "Surprise Me" matcher
+│       ├── ExploreMap.jsx      # Zone & radius-based map filtering
+│       ├── SavedNightsPage.jsx # Shortlisted events itinerary
+│       ├── CheckoutPage.jsx    # Simulated booking & ticket creation
+│       └── MyTicketsPage.jsx   # Digital wallet, QR codes & .ics export
+└── package.json
