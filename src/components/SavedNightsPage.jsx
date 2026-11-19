@@ -2,22 +2,23 @@ import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
-export default function SavedNightsPage({ savedEvents = [] }) {
+export default function SavedNightsPage({ savedEvents = [], onUnsave }) {
   const navigate = useNavigate();
-  
-  // We use this to instantly hide a card if the user clicks the "unsave" heart
+
   const [hiddenIds, setHiddenIds] = useState(new Set());
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('soonest');
 
-  // This reads the master list from App.jsx, minus any the user just removed
   const nights = savedEvents.filter((n) => !hiddenIds.has(n.id));
 
   const handleUnsave = (id) => {
-    setHiddenIds((prev) => new Set(prev).add(id));
+    if (onUnsave) {
+      onUnsave(id);
+    } else {
+      setHiddenIds((prev) => new Set(prev).add(id));
+    }
   };
 
-  // Tabs built from the categories of the saved nights
   const categories = useMemo(
     () => ['all', ...new Set(nights.map((n) => n.category).filter(Boolean))],
     [nights]
@@ -33,7 +34,6 @@ export default function SavedNightsPage({ savedEvents = [] }) {
       : priceNum(a.price) - priceNum(b.price)
   );
 
-  // If the active tab's last night was removed, fall back to "all"
   useEffect(() => {
     if (filter !== 'all' && !categories.includes(filter)) setFilter('all');
   }, [categories, filter]);
@@ -105,7 +105,6 @@ export default function SavedNightsPage({ savedEvents = [] }) {
             />
           ))}
         </div>
-
       </section>
     </Sidebar>
   );
@@ -116,7 +115,6 @@ const formatPrice = (price, currency) =>
     ? 'Free'
     : `${Number(price).toLocaleString()} ${currency || 'KES'}`;
 
-// Removed the second "export default" to prevent React crashing
 function SavedNightCard({ night, onUnsave, onBuyTickets }) {
   return (
     <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#131519]">
@@ -157,11 +155,11 @@ function SavedNightCard({ night, onUnsave, onBuyTickets }) {
           </p>
         </div>
         <button
-            onClick={() => onBuyTickets(night)}
-            className="mt-4 w-full cursor-pointer rounded-full bg-[#d2ff38] px-4 py-2.5 text-xs font-bold text-[#0b0c0e] transition hover:brightness-110 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d2ff38]"
-          >
-            Get tickets <span aria-hidden="true">→</span>
-          </button>
+          onClick={() => onBuyTickets(night)}
+          className="mt-4 w-full cursor-pointer rounded-full bg-[#d2ff38] px-4 py-2.5 text-xs font-bold text-[#0b0c0e] transition hover:brightness-110 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d2ff38]"
+        >
+          Get tickets <span aria-hidden="true">→</span>
+        </button>
       </div>
     </article>
   );
