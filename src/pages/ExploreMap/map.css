@@ -1,0 +1,45 @@
+.leaflet-container {
+  background: #0b0c0e;
+  font-family: inherit;
+}
+.leaflet-container img {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.price-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font: 600 12px Inter, sans-serif;
+  background: #1b1c1f;
+  color: #fff;
+  border: 1px solid #2a2c2f;
+}
+.price-pin.on {
+  background: #d2ff38;
+  color: #0b0c0e;
+  border-color: #d2ff38;
+}
+
+.you-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #d2ff38;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 5px rgba(210, 255, 56, 0.25);
+}
+
+/* OpenStreetMap tiles are light, so we turn them dark */
+.leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.7);
+}
+
+/* Thin dark scrollbar for the list of nights */
+.dark-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2c2f transparent;
+}
