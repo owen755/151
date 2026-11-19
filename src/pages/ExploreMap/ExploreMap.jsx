@@ -15,14 +15,27 @@ import {
   filterEvents,
 } from './filters'
 
+function loadLocalHosted() {
+  try {
+    const stored = JSON.parse(sessionStorage.getItem('aftr_hosted_events') || '[]')
+    return Array.isArray(stored) ? stored : []
+  } catch {
+    return []
+  }
+}
+
+function mergeWithHosted(rawList) {
+  const hosted = loadLocalHosted()
+  const ids = new Set(rawList.map((e) => String(e.id)))
+  const unsyncedHosted = hosted.filter((e) => !ids.has(String(e.id)))
+  return [...unsyncedHosted, ...rawList].map(normalizeEvent)
+}
+
 export default function ExploreMap() {
-  const location = useLocation(); 
-  const [events, setEvents] = useState(() =>
-    API_URL ? [] : backup.events.map(normalizeEvent)
-  )
-  const [status, setStatus] = useState(API_URL ? 'loading' : 'ready') 
-  
-  
+  const location = useLocation()
+  const [events, setEvents] = useState(() => mergeWithHosted(backup.events))
+  const [status, setStatus] = useState(API_URL ? 'loading' : 'ready')
+
   const [selectedId, setSelectedId] = useState(location.state?.targetEventId || null)
 
   const [search, setSearch] = useState('')
@@ -34,7 +47,13 @@ export default function ExploreMap() {
   const [zone, setZone] = useState('All Nairobi Zones')
 
   useEffect(() => {
-    if (!API_URL) return
+    let cancelled = false
+
+    if (!API_URL) {
+      setEvents(mergeWithHosted(backup.events))
+      setStatus('ready')
+      return
+    }
 
     fetch(`${API_URL}/events`)
       .then((res) => {
@@ -42,10 +61,22 @@ export default function ExploreMap() {
         return res.json()
       })
       .then((data) => {
-        setEvents(data.map(normalizeEvent))
+        if (cancelled) return
+        const list = Array.isArray(data) ? data : data?.events || []
+        if (list.length === 0) throw new Error('Empty response')
+        setEvents(mergeWithHosted(list))
         setStatus('ready')
       })
-      .catch(() => setStatus('error'))
+      .catch(() => {
+        if (cancelled) return
+        // Fall back to bundled server/db.json if the mock server fails
+        setEvents(mergeWithHosted(backup.events))
+        setStatus('ready')
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // The categories come from the data: music, education, charity...
@@ -58,9 +89,8 @@ export default function ExploreMap() {
   const shown = filterEvents(events, { search, maxMiles, category, price, bounds: areaBounds, zone })
 
   // If the selected night was filtered out, the first one on the list is selected
-  const activeId = shown.some((e) => e.id === selectedId)
-    ? selectedId
-    : shown[0]?.id
+  const matchedEvent = shown.find((e) => String(e.id) === String(selectedId))
+  const activeId = matchedEvent ? matchedEvent.id : shown[0]?.id
 
   return (
     <Sidebar
@@ -175,7 +205,6 @@ export default function ExploreMap() {
             />
           )}
         </div>
-
       </div>
     </Sidebar>
   )
