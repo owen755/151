@@ -93,6 +93,7 @@ function shouldHardDeleteTicket(ticket, nowMs = Date.now()) {
 function saveTicketsToStorage(ticketList) {
   try {
     localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(ticketList));
+    window.dispatchEvent(new Event('aftr:tickets-updated'));
   } catch {
     // Ignore storage quota errors
   }
@@ -159,7 +160,7 @@ function escapeCalendarText(value) {
   return String(value).replaceAll('\\', '\\\\').replaceAll(';', '\\;').replaceAll(',', '\\,').replaceAll('\n', '\\n');
 }
 
-function TicketDetails({ ticket, onClose, onMarkAttended, onRequestRefund }) {
+function TicketDetails({ ticket, onClose, onMarkAttended, onDelete, onRequestRefund }) {
   const [shareMessage, setShareMessage] = useState('');
   const [refundReason, setRefundReason] = useState('Unable to attend');
   const [showRefundForm, setShowRefundForm] = useState(false);
@@ -419,21 +420,31 @@ function TicketDetails({ ticket, onClose, onMarkAttended, onRequestRefund }) {
           </button>
         </div>
 
-        {/* Gate scan vs Refund actions */}
-        <div className="flex flex-wrap items-center justify-center gap-4 px-5 pb-4 text-center">
+        {/* Gate scan, Delete & Refund actions */}
+        <div className="flex flex-wrap items-center justify-center gap-3 px-5 pb-4 text-center">
           <button
-            className="text-[10px] font-semibold text-[#8b909a] underline-offset-4 transition hover:text-[#d2ff38] hover:underline"
+            className="text-[10px] font-semibold text-[#8b909a] underline-offset-4 transition hover:text-[#d2ff38] hover:underline cursor-pointer"
             onClick={() => onMarkAttended(ticket)}
             type="button"
           >
             Scanned at gate (Attended)
           </button>
 
+          <span className="text-white/20">•</span>
+
+          <button
+            className="text-[10px] font-semibold text-red-300 underline-offset-4 transition hover:underline cursor-pointer"
+            onClick={() => onDelete(ticket)}
+            type="button"
+          >
+            Delete ticket
+          </button>
+
           {canRequestRefund && !showRefundForm && (
             <>
               <span className="text-white/20">•</span>
               <button
-                className="text-[10px] font-semibold text-amber-300 underline-offset-4 transition hover:underline"
+                className="text-[10px] font-semibold text-amber-300 underline-offset-4 transition hover:underline cursor-pointer"
                 onClick={() => setShowRefundForm(true)}
                 type="button"
               >
@@ -453,7 +464,7 @@ function TicketDetails({ ticket, onClose, onMarkAttended, onRequestRefund }) {
   );
 }
 
-function TicketCard({ ticket, onShow }) {
+function TicketCard({ ticket, onShow, onDelete }) {
   const ended = hasEventEnded(ticket);
   const refundStatus = ticket.refundStatus;
 
@@ -504,24 +515,34 @@ function TicketCard({ ticket, onShow }) {
           </p>
         </div>
 
-        <div className="mt-4 flex items-center justify-between border-t border-white/[0.07] pt-3">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.07] pt-3">
           <div>
             <span className="block text-[8px] font-bold tracking-[1px] text-[#777a72]">TOTAL PAID</span>
             <span className="text-[12px] font-bold text-white">
               {formatPrice(Number(ticket.price) * Number(ticket.quantity))}
             </span>
           </div>
-          <button
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[10px] font-extrabold transition hover:brightness-105 active:scale-[.98] ${
-              ended && !refundStatus
-                ? 'bg-amber-300 text-[#11130d]'
-                : 'bg-[#d2ff38] text-[#11130d]'
-            }`}
-            onClick={() => onShow(ticket)}
-            type="button"
-          >
-            {ended && !refundStatus ? 'View / Refund' : 'Show ticket'} <span aria-hidden="true">↗</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              aria-label={`Delete ticket for ${ticket.title}`}
+              className="rounded-full border border-red-400/25 bg-red-500/10 px-3.5 py-2.5 text-[10px] font-bold text-red-300 transition hover:bg-red-500/20 active:scale-[.98] cursor-pointer"
+              onClick={() => onDelete(ticket)}
+              type="button"
+            >
+              Delete
+            </button>
+            <button
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[10px] font-extrabold transition hover:brightness-105 active:scale-[.98] cursor-pointer ${
+                ended && !refundStatus
+                  ? 'bg-amber-300 text-[#11130d]'
+                  : 'bg-[#d2ff38] text-[#11130d]'
+              }`}
+              onClick={() => onShow(ticket)}
+              type="button"
+            >
+              {ended && !refundStatus ? 'View / Refund' : 'Show ticket'} <span aria-hidden="true">↗</span>
+            </button>
+          </div>
         </div>
       </div>
     </article>
@@ -609,16 +630,17 @@ export default function MyTicketsPage() {
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, []);
 
-  // Gate scan / Attended handler: deletes the used ticket immediately
-  const handleMarkAttended = (ticketToRemove) => {
+  // Delete or mark attended handler: removes ticket from state & localStorage
+  const handleDeleteTicket = (ticketToRemove) => {
+    const targetKey = ticketToRemove.reference || ticketToRemove.id;
     setTickets((current) => {
-      const updated = current.filter(
-        (item) => (item.reference || item.id) !== (ticketToRemove.reference || ticketToRemove.id)
-      );
+      const updated = current.filter((item) => (item.reference || item.id) !== targetKey);
       saveTicketsToStorage(updated);
       return updated;
     });
-    setSelectedTicket(null);
+    if (selectedTicket && (selectedTicket.reference || selectedTicket.id) === targetKey) {
+      setSelectedTicket(null);
+    }
   };
 
   // Refund claim handler: keeps proof of payment & logs refund request
@@ -799,7 +821,12 @@ export default function MyTicketsPage() {
             ) : visibleTickets.length ? (
               <div className="flex flex-col gap-2.5">
                 {visibleTickets.map((ticket) => (
-                  <TicketCard key={ticket.reference || ticket.id} onShow={setSelectedTicket} ticket={ticket} />
+                  <TicketCard
+                    key={ticket.reference || ticket.id}
+                    onDelete={handleDeleteTicket}
+                    onShow={setSelectedTicket}
+                    ticket={ticket}
+                  />
                 ))}
               </div>
             ) : (
@@ -880,7 +907,8 @@ export default function MyTicketsPage() {
         {selectedTicket && (
           <TicketDetails
             onClose={() => setSelectedTicket(null)}
-            onMarkAttended={handleMarkAttended}
+            onDelete={handleDeleteTicket}
+            onMarkAttended={handleDeleteTicket}
             onRequestRefund={handleRequestRefund}
             ticket={selectedTicket}
           />
