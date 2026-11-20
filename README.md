@@ -1,8 +1,22 @@
-# AFTR — Event Discovery & Ticketing for Nairobi
+# aftr.
 
-Figuring out what to do on a Friday night in Nairobi shouldn't feel like a part-time job. Right now, finding out where the vibe is means digging through scattered WhatsApp statuses, endless Instagram flyers, and half a dozen disconnected ticketing links—only to realize the event is across town or sold out.
+**Go out. Find your people.**
 
-**AFTR** brings nightlife, daytime sets, and local workshops into one place. It’s a fast, mobile-first web app built to take you from *"what's happening tonight?"* to a QR code in your wallet in under a minute.
+aftr. is a web application for discovering, saving, and booking nights out in Nairobi. It replaces endless scrolling through event listings with a swipe-based discovery experience, then takes users from "I'm in" to a QR entry pass in a single flow. It also gives organizers the tools to publish events and check guests in at the door.
+
+## Overview
+
+Finding something to do in a busy city often means juggling social feeds, group chats, and ticketing sites. aftr. brings the whole journey into one place: discover an event, save it, buy a ticket, and walk in with a scannable pass. Hosts get an equally simple path to list an event and verify attendance.
+
+
+## Screenshot
+![aftr. discovery screen showing a swipe-based event card with event details, while pass and save controls frame the deck; the heading and navigation read aftr. and Discover, with a lively, welcoming tone](./assets/aftr.png)
+
+## Key Features
+
+Finding something to do in a busy city often means juggling social feeds, group chats, and ticketing sites. aftr. brings the whole journey into one place: discover an event, save it, buy a ticket, and walk in with a scannable pass. Hosts get an equally simple path to list an event and verify attendance.
+
+## Key Features
 
 **Design & Wireframes:**
 
@@ -10,60 +24,70 @@ Figuring out what to do on a Friday night in Nairobi shouldn't feel like a part-
 
 ---
 
-## Why We Built This
-
-Most event platforms feel like spreadsheets with banner images. They overwhelm you with walls of text, give you zero sense of where venues actually sit relative to where you are, and force you off-platform the second you decide to commit.
-
-We wanted AFTR to feel effortless:
-- **Less scrolling, faster decisions:** Swipe through curated cards instead of reading endless event lists.
-- **Know where you're going:** Filter events by neighborhood (Westlands, Kilimani, Karen, Lavington) and distance radius so you know what's actually close.
-- **Everything stays put:** Save events to your personal shortlist and lock in tickets without losing your progress when you refresh the page.
-
----
-
-## Core Features
-
-### 1. Discover (The Swipe Deck)
-A card-based discovery feed tailored to Nairobi's nightlife and culture. Each card shows the venue, neighborhood, entry fee (in KSh or Free RSVP), and start time. Hit **I'm In** to stash the night for later, **Pass** to keep moving, or tap **Surprise Me** when you're indecisive and want a random pick matched to your budget and vibe.
-
-### 2. Explore Map
-An interactive neighborhood view that plots events visually. Users can filter by category, price, and distance radius, or jump straight from a card on the Discover feed directly to its pin on the map.
-
-### 3. Saved Nights
-Your personal weekend shortlist. Compare the events you liked, check start times in East Africa Time (EAT), remove plans that no longer fit, or head straight into checkout.
-
-### 4. Simulated Checkout & Digital Wallet (`My Tickets`)
-A clean booking flow that collects attendee details and generates an instant digital pass. Inside **My Tickets**, users can:
-- View upcoming vs. past events with live EAT time tracking.
-- Pull up a full-screen entry pass complete with a unique booking reference (`AFTR-XXXX-XXXX`) and a scannable QR code.
-- Download a plain-text receipt or export an `.ics` file directly to their phone's calendar.
-
----
-
-## How It Works Under the Hood
-
-AFTR is built with **React**, **Vite**, **React Router**, and **Tailwind CSS**, using a hybrid data setup to keep the UI snappy while still simulating real API communication:
-
-- **Event Catalog (`GET`):** On load, the app fetches the master event list asynchronously from a **Postman Mock Server** (with a local `db.json` fallback so the app never breaks offline).
-- **Client-Side Persistence (`localStorage` + Elevated State):** Mock servers don't persist `POST` requests across sessions—if you rely on them alone, refreshing the page wipes out newly purchased tickets and saved events. To solve this, `App.jsx` manages global user state and syncs every saved night and booked ticket directly to `localStorage`. When `MyTicketsPage` loads, it merges server responses with local browser storage without overwriting user data.
-
----
-
 ## Project Structure
 
-```text
-aftr/
-├── server/
-│   └── db.json                 # Fallback event catalog data
-├── src/
-│   ├── api.js                  # Postman Mock Server endpoint config
-│   ├── App.jsx                 # Global state & routing setup
-│   ├── components/
-│   │   └── Sidebar.jsx         # Persistent navigation shell
-│   └── pages/
-│       ├── DiscoverPage.jsx    # Swipe deck & "Surprise Me" matcher
-│       ├── ExploreMap.jsx      # Zone & radius-based map filtering
-│       ├── SavedNightsPage.jsx # Shortlisted events itinerary
-│       ├── CheckoutPage.jsx    # Simulated booking & ticket creation
-│       └── MyTicketsPage.jsx   # Digital wallet, QR codes & .ics export
-└── package.json
+
+### Discovery
+
+- **Swipe deck:** pass or save events with gestures, buttons, or keyboard shortcuts, with undo support.
+- **Surprise Me:** a randomized picker that can be narrowed by music, proximity, budget, or free entry.
+- **Search and filters:** live search across titles, venues, categories, and prices, with filters for category, free events, and distance from central Nairobi.
+- **Location zones:** browse by venue or area across the city.
+- **Explore Map:** an interactive map and list view of nearby events, linked directly from each card.
+
+### Saved Nights
+
+- A personal shortlist with category filters and sorting by time or price.
+- A direct path from a saved night to checkout.
+
+### Checkout and Ticketing
+
+- Regular and VIP tiers, quantity selection, and promo codes.
+- Payment via M-Pesa Express (STK push flow) or card, with a timed seat hold.
+- Instant QR entry passes stored in **My Tickets**.
+- Calendar export (`.ics`), downloadable receipts, printing, and sharing.
+- A ticket lifecycle that matches real use: attended passes clear after the event, and unused paid tickets remain for 7 days with a built-in refund request.
+
+### For Organizers
+
+- **Host portal:** publish an event with a live card preview, using the same schema as the main data set.
+- **Gate scanner:** verify passes by camera QR scan (where supported) or reference code, and mark guests as attended, with duplicate-scan detection.
+
+## Technology Stack
+
+| Area        | Technology                                                            |
+| ----------- | --------------------------------------------------------------------- |
+| Front end   | React with React Router                                               |
+| Styling     | Tailwind CSS                                                          |
+| Data        | JSON Server (`server/db.json`) with a bundled offline fallback        |
+| Tickets     | `qrcode.react` for QR generation; browser `BarcodeDetector` scanning  |
+| Persistence | `localStorage` and `sessionStorage` for tickets and hosted events     |
+| Testing     | React Testing Library with Jest / Vitest                              |
+
+## Design Principles
+
+- **Resilient by default:** the app falls back to bundled data when the API is unavailable.
+- **Local-first:** built around Nairobi, with East Africa Time (UTC+3) for ticket expiry and refund windows, and KES pricing.
+- **Accessible interactions:** semantic markup, labelled controls, and keyboard support.
+
+## Scope Note
+
+Payments are simulated in a sandbox, so no real money moves. Tickets and hosted events are stored in the browser. A production release would need a backend for payment processing, authentication, and server-side ticket validation.
+
+## Getting Started
+
+```bash
+# install dependencies
+npm install
+
+# start the mock API (json-server)
+npm run server
+
+# start the app
+npm run dev
+
+# run the tests
+npm test
+```
+
+## Team
