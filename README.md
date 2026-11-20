@@ -10,7 +10,7 @@ Finding something to do in a busy city often means juggling social feeds, group 
 
 
 ## Screenshot
-![aftr. discovery screen showing a swipe-based event card with event details, while pass and save controls frame the deck; the heading and navigation read aftr. and Discover, with a lively, welcoming tone](./assets/aftr.png)
+![aftr. discovery screen showing a swipe-based event card with event details, while pass and save controls frame the deck; the heading and navigation read aftr. and Discover, with a lively, welcoming tone](./src/assets/aftr.png)
 
 ## Key Features
 
